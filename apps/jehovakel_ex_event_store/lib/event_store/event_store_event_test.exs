@@ -1,5 +1,5 @@
 defmodule Shared.EventStoreEventTest do
-  use Support.TestCase, async: true
+  use ExUnit.Case, async: true
   alias Shared.EventStoreEvent, as: Event
 
   defmodule TestEvent do

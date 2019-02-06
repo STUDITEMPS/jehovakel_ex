@@ -11,9 +11,11 @@ defmodule Shared.MixProject do
       # lockfile: "../../mix.lock",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
+      elixirc_paths: elixirc_paths(Mix.env()),
       test_paths: ["test", "lib"],
       test_coverage: [tool: ExCoveralls],
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -24,12 +26,23 @@ defmodule Shared.MixProject do
     ]
   end
 
+  # Specifies which paths to compile per environment.
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
+
+  defp aliases do
+    [
+      test: ["ecto.create --quiet", "event_store.init", "ecto.migrate", "test"]
+    ]
+  end
+
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       # CQRS event store using PostgreSQL for persistence
       {:eventstore, "~> 0.15"},
-      {:ecto, "~> 3.0", optional: true},
+      {:ecto, "~> 2.2 or ~> 3.0", optional: true},
+      {:ecto_sql, "~> 3.0", optional: true},
       {:jehovakel_ex_ecto, ">= 0.0.0", optional: true, in_umbrella: true}
     ]
   end

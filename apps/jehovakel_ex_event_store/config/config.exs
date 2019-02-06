@@ -27,4 +27,27 @@ use Mix.Config
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-#     import_config "#{Mix.env()}.exs"
+
+config :jehovakel_ex_event_store,
+  ecto_repos: [Support.JehovakelExRepo]
+
+# General Repository configuration
+config :jehovakel_ex_event_store, Support.JehovakelExRepo,
+  username: System.get_env("PG_USER") || System.get_env()["USER"],
+  password: System.get_env("PG_PASSWORD") || "",
+  port: System.get_env("PG_PORT") || "5432",
+  hostname: System.get_env("PG_HOST") || "localhost",
+  database: System.get_env("PG_NAME") || "jehovakel_ex_event_store_#{Mix.env()}",
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+  migration_source: "readstore_schema_migrations"
+
+config :eventstore, EventStore.Storage,
+  serializer: EventStore.TermSerializer,
+  username: System.get_env("PG_USER") || System.get_env()["USER"],
+  password: System.get_env("PG_PASSWORD") || "",
+  port: System.get_env("PG_PORT") || "5432",
+  hostname: System.get_env("PG_HOST") || "localhost",
+  database: System.get_env("PG_NAME") || "jehovakel_ex_event_store_#{Mix.env()}",
+  pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
+
+import_config "#{Mix.env()}.exs"

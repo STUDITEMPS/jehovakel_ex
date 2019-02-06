@@ -5,7 +5,8 @@ defmodule Shared.EventTest.FailingEventStoreBackend do
 end
 
 defmodule Shared.EventTest do
-  use Support.DataCase
+  use ExUnit.Case
+  # use Support.DataCase
   @moduletag :integration
   alias Shared.EventTest.FailingEventStoreBackend
   alias Shared.EventStore
