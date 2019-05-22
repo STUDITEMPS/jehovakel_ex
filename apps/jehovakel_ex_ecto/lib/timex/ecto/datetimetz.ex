@@ -240,7 +240,7 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
     #       }
     #     }
     # end
-    dt_with_timezone = Timex.set(dt, timezone)
+    dt_with_timezone = Timex.set(dt, timezone: timezone)
 
     {:ok, dt_with_timezone}
   end
