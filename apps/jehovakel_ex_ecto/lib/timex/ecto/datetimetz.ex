@@ -250,7 +250,8 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
   Convert to the native Ecto representation
   """
   def dump(%DateTime{time_zone: tzname} = datetime) do
-    {:ok, {datetime, tzname}}
+    in_utc = Timex.set(datetime, timezone: "Etc/UTC")
+    {:ok, {in_utc, tzname}}
   end
 
   def autogenerate(precision \\ :sec)
