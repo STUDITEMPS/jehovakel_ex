@@ -249,8 +249,8 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
   @doc """
   Convert to the native Ecto representation
   """
-  def dump(%DateTime{microsecond: {us, _}, time_zone: tzname} = d) do
-    {:ok, {{{d.year, d.month, d.day}, {d.hour, d.minute, d.second, us}}, tzname}}
+  def dump(%DateTime{time_zone: tzname} = datetime) do
+    {:ok, {datetime, tzname}}
   end
 
   def autogenerate(precision \\ :sec)
