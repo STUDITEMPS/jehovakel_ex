@@ -187,59 +187,7 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
   Load from the native Ecto representation
   """
   def load({%DateTime{} = dt, timezone}) do
-    # secs = :calendar.datetime_to_gregorian_seconds({{y, m, d}, {h, mm, s}})
-
-    # case Timezone.resolve(timezone, secs) do
-    #   {:error, _} ->
-    #     :error
-
-    #   %TimezoneInfo{} = tz ->
-    #     dt = %DateTime{
-    #       :year => y,
-    #       :month => m,
-    #       :day => d,
-    #       :hour => h,
-    #       :minute => mm,
-    #       :second => s,
-    #       :microsecond => Timex.DateTime.Helpers.construct_microseconds(usec),
-    #       :time_zone => tz.full_name,
-    #       :zone_abbr => tz.abbreviation,
-    #       :utc_offset => tz.offset_utc,
-    #       :std_offset => tz.offset_std
-    #     }
-
-    #     {:ok, dt}
-
-    #   %AmbiguousTimezoneInfo{before: b, after: a} ->
-    #     dt = %AmbiguousDateTime{
-    #       :before => %DateTime{
-    #         :year => y,
-    #         :month => m,
-    #         :day => d,
-    #         :hour => h,
-    #         :minute => mm,
-    #         :second => s,
-    #         :microsecond => Timex.DateTime.Helpers.construct_microseconds(usec),
-    #         :time_zone => b.full_name,
-    #         :zone_abbr => b.abbreviation,
-    #         :utc_offset => b.offset_utc,
-    #         :std_offset => b.offset_std
-    #       },
-    #       :after => %DateTime{
-    #         :year => y,
-    #         :month => m,
-    #         :day => d,
-    #         :hour => h,
-    #         :minute => mm,
-    #         :second => s,
-    #         :microsecond => Timex.DateTime.Helpers.construct_microseconds(usec),
-    #         :time_zone => a.full_name,
-    #         :zone_abbr => a.abbreviation,
-    #         :utc_offset => a.offset_utc,
-    #         :std_offset => a.offset_std
-    #       }
-    #     }
-    # end
+    # FIXME: handle AmbiguousDateTime
     dt_with_timezone = Timex.set(dt, timezone: timezone)
 
     {:ok, dt_with_timezone}
@@ -251,20 +199,7 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
   Convert to the native Ecto representation
   """
   def dump(%DateTime{time_zone: tzname} = datetime) do
-    in_utc = Timex.set(datetime, timezone: "Etc/UTC")
+    in_utc = Timex.set(datetime, timezone: "Etc/UTC", microsecond: {0, 0})
     {:ok, {in_utc, tzname}}
-  end
-
-  def autogenerate(precision \\ :sec)
-
-  def autogenerate(:sec) do
-    {date, {h, m, s}} = :erlang.universaltime()
-    load({{date, {h, m, s, 0}}, "UTC"}) |> elem(1)
-  end
-
-  def autogenerate(:usec) do
-    timestamp = {_, _, usec} = :os.timestamp()
-    {date, {h, m, s}} = :calendar.now_to_datetime(timestamp)
-    load({{date, {h, m, s, usec}}, "UTC"}) |> elem(1)
   end
 end
