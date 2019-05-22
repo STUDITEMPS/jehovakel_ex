@@ -27,7 +27,7 @@ defmodule Shared.Ecto.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ecto, "~> 2.2 or ~> 3.0"},
+      {:ecto_sql, "~> 3.0"},
       {:postgrex, "~> 0.13"},
       {:timex, ">= 3.4.2"},
       {:excoveralls, ">= 0.10.5", only: :test}
