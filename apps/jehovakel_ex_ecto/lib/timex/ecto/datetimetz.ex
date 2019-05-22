@@ -239,10 +239,10 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
     #         :std_offset => a.offset_std
     #       }
     #     }
-        dt_with_timezone = Timex.set(dt, timezone)
+    # end
+    dt_with_timezone = Timex.set(dt, timezone)
 
-        {:ok, dt_with_timezone}
-    end
+    {:ok, dt_with_timezone}
   end
 
   def load(_), do: :error
