@@ -186,61 +186,62 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
   @doc """
   Load from the native Ecto representation
   """
-  def load({{{y, m, d}, {h, mm, s, usec}}, timezone}) do
-    secs = :calendar.datetime_to_gregorian_seconds({{y, m, d}, {h, mm, s}})
+  def load({%DateTime{} = dt, timezone}) do
+    # secs = :calendar.datetime_to_gregorian_seconds({{y, m, d}, {h, mm, s}})
 
-    case Timezone.resolve(timezone, secs) do
-      {:error, _} ->
-        :error
+    # case Timezone.resolve(timezone, secs) do
+    #   {:error, _} ->
+    #     :error
 
-      %TimezoneInfo{} = tz ->
-        dt = %DateTime{
-          :year => y,
-          :month => m,
-          :day => d,
-          :hour => h,
-          :minute => mm,
-          :second => s,
-          :microsecond => Timex.DateTime.Helpers.construct_microseconds(usec),
-          :time_zone => tz.full_name,
-          :zone_abbr => tz.abbreviation,
-          :utc_offset => tz.offset_utc,
-          :std_offset => tz.offset_std
-        }
+    #   %TimezoneInfo{} = tz ->
+    #     dt = %DateTime{
+    #       :year => y,
+    #       :month => m,
+    #       :day => d,
+    #       :hour => h,
+    #       :minute => mm,
+    #       :second => s,
+    #       :microsecond => Timex.DateTime.Helpers.construct_microseconds(usec),
+    #       :time_zone => tz.full_name,
+    #       :zone_abbr => tz.abbreviation,
+    #       :utc_offset => tz.offset_utc,
+    #       :std_offset => tz.offset_std
+    #     }
 
-        {:ok, dt}
+    #     {:ok, dt}
 
-      %AmbiguousTimezoneInfo{before: b, after: a} ->
-        dt = %AmbiguousDateTime{
-          :before => %DateTime{
-            :year => y,
-            :month => m,
-            :day => d,
-            :hour => h,
-            :minute => mm,
-            :second => s,
-            :microsecond => Timex.DateTime.Helpers.construct_microseconds(usec),
-            :time_zone => b.full_name,
-            :zone_abbr => b.abbreviation,
-            :utc_offset => b.offset_utc,
-            :std_offset => b.offset_std
-          },
-          :after => %DateTime{
-            :year => y,
-            :month => m,
-            :day => d,
-            :hour => h,
-            :minute => mm,
-            :second => s,
-            :microsecond => Timex.DateTime.Helpers.construct_microseconds(usec),
-            :time_zone => a.full_name,
-            :zone_abbr => a.abbreviation,
-            :utc_offset => a.offset_utc,
-            :std_offset => a.offset_std
-          }
-        }
+    #   %AmbiguousTimezoneInfo{before: b, after: a} ->
+    #     dt = %AmbiguousDateTime{
+    #       :before => %DateTime{
+    #         :year => y,
+    #         :month => m,
+    #         :day => d,
+    #         :hour => h,
+    #         :minute => mm,
+    #         :second => s,
+    #         :microsecond => Timex.DateTime.Helpers.construct_microseconds(usec),
+    #         :time_zone => b.full_name,
+    #         :zone_abbr => b.abbreviation,
+    #         :utc_offset => b.offset_utc,
+    #         :std_offset => b.offset_std
+    #       },
+    #       :after => %DateTime{
+    #         :year => y,
+    #         :month => m,
+    #         :day => d,
+    #         :hour => h,
+    #         :minute => mm,
+    #         :second => s,
+    #         :microsecond => Timex.DateTime.Helpers.construct_microseconds(usec),
+    #         :time_zone => a.full_name,
+    #         :zone_abbr => a.abbreviation,
+    #         :utc_offset => a.offset_utc,
+    #         :std_offset => a.offset_std
+    #       }
+    #     }
+        dt_with_timezone = Timex.set(dt, timezone)
 
-        {:ok, dt}
+        {:ok, dt_with_timezone}
     end
   end
 
