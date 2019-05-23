@@ -13,6 +13,10 @@ defmodule Shared.Ecto.Interval do
     |> cast
   end
 
+  def cast(%{"megaseconds" => megaseconds, "microseconds" => microseconds, "seconds" => seconds}) do
+    {:ok, %Timex.Duration{megaseconds: megaseconds, microseconds: microseconds, seconds: seconds}}
+  end
+
   def cast(_) do
     :error
   end
@@ -55,5 +59,13 @@ defmodule Shared.Ecto.Interval do
 
   defp float_hours_to_seconds(hours) do
     round(hours * 60 * 60)
+  end
+end
+
+if Code.ensure_loaded?(Jason) do
+  defimpl Jason.Encoder, for: Timex.Duration do
+    def encode(duration, opts) do
+      Jason.Encode.map(Map.take(duration, [:megaseconds, :microseconds, :seconds]), opts)
+    end
   end
 end
