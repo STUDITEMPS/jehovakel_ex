@@ -97,6 +97,9 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
     {:ok, dt}
   end
 
+  # TODO: Implement casting/loading for Jason.encode() and Jason.decode()
+  # TODO: Get rid of all the unnecessary code copied from ecto 2.x
+
   def cast(input) when is_binary(input) do
     case Timex.parse(input, "{ISO:Extended}") do
       {:ok, datetime} -> {:ok, datetime |> DateTime.truncate(:second)}
