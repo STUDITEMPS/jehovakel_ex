@@ -10,6 +10,7 @@ defmodule Shared.Ecto.MixProject do
       # config_path: "../../config/config.exs",
       # lockfile: "../../mix.lock",
       elixir: "~> 1.7",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       test_paths: ["test", "lib"],
       test_coverage: [tool: ExCoveralls],
@@ -30,7 +31,11 @@ defmodule Shared.Ecto.MixProject do
       {:ecto_sql, "~> 3.0"},
       {:postgrex, "~> 0.13"},
       {:timex, ">= 3.4.2"},
-      {:excoveralls, ">= 0.10.5", only: :test}
+      {:excoveralls, ">= 0.10.5", only: :test},
+      {:jason, ">= 0.0.0"}
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 end
