@@ -40,7 +40,7 @@ if Code.ensure_loaded?(Postgrex) do
       create table(:users, primary_key: true) do
         add(:name, :string)
         add(:datetimetz_test, :datetimetz)
-        add(:embedded_test, :map, default: [])
+        add(:embedded_test, {:array, :map}, default: [])
 
         timestamps()
       end
