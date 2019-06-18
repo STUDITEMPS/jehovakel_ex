@@ -7,8 +7,6 @@ defmodule Shared.Ecto.MixProject do
       version: "0.1.0",
       build_path: "_build",
       deps_path: "deps",
-      # config_path: "../../config/config.exs",
-      # lockfile: "../../mix.lock",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
