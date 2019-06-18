@@ -1,9 +1,9 @@
-defmodule Shared.Ecto.MixProject do
+defmodule JehovakelExTimes.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :jehovakel_ex_ecto,
+      app: :jehovakel_ex_times,
       version: "0.1.0",
       build_path: "_build",
       deps_path: "deps",
@@ -26,11 +26,8 @@ defmodule Shared.Ecto.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ecto_sql, "~> 3.0"},
-      {:postgrex, "~> 0.13"},
       {:timex, ">= 3.4.2"},
-      {:excoveralls, ">= 0.10.5", only: :test},
-      {:jason, ">= 0.0.0"}
+      {:excoveralls, ">= 0.10.5", only: :test}
     ]
   end
 

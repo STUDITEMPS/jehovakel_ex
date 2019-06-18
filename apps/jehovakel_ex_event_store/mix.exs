@@ -5,13 +5,13 @@ defmodule Shared.MixProject do
     [
       app: :jehovakel_ex_event_store,
       version: "0.1.0",
-      build_path: "../../_build",
-      deps_path: "../../deps",
-      # config_path: "../../config/config.exs",
-      # lockfile: "../../mix.lock",
+      elixirc_paths: elixirc_paths(Mix.env()),
+      build_path: "_build",
+      deps_path: "deps",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
+      aliases: aliases(),
       test_paths: ["test", "lib"],
       test_coverage: [tool: ExCoveralls],
       deps: deps(),
@@ -41,7 +41,7 @@ defmodule Shared.MixProject do
     [
       # CQRS event store using PostgreSQL for persistence
       {:eventstore, "~> 0.15"},
-      {:ecto, "~> 2.2 or ~> 3.0", optional: true},
+      {:ecto, "~> 3.0", optional: true},
       {:ecto_sql, "~> 3.0", optional: true},
       {:jehovakel_ex_ecto, ">= 0.0.0", optional: true, in_umbrella: true}
     ]
