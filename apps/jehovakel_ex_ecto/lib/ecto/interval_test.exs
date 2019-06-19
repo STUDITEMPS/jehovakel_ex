@@ -13,6 +13,14 @@ defmodule Shared.Ecto.IntervalTest do
     assert Interval.type() == :interval
   end
 
+  test "cast/1 accepts binaries as float hours" do
+    assert Interval.cast("8.5") == {:ok, Timex.Duration.from_hours(8.5)}
+  end
+
+  test "cast/1 does not accept binaries if they cannot be parsed entirely" do
+    assert Interval.cast("8.5foo") == :error
+  end
+
   test "cast/1 accepts Timex.Duration" do
     assert Interval.cast(@timex_duration) == {:ok, @timex_duration}
   end

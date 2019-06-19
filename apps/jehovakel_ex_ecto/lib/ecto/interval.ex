@@ -6,11 +6,18 @@ defmodule Shared.Ecto.Interval do
     {:ok, duration}
   end
 
+  def cast(duration_as_binary) when is_binary(duration_as_binary) do
+    case Float.parse(duration_as_binary) do
+      {duration, ""} -> cast(duration)
+      _ -> cast(:error)
+    end
+  end
+
   def cast(duration) when is_float(duration) do
     duration
     |> float_hours_to_seconds
     |> Timex.Duration.from_seconds()
-    |> cast
+    |> cast()
   end
 
   def cast(%{"megaseconds" => megaseconds, "microseconds" => microseconds, "seconds" => seconds}) do
