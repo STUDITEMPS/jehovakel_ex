@@ -4,6 +4,7 @@ defmodule Shared.Dauer do
   defdelegate aus_stundenzahl(stunden_als_float_oder_integer), to: Timex.Duration, as: :from_hours
   defdelegate in_stunden(dauer), to: Timex.Duration, as: :to_hours
   defdelegate in_minuten(dauer), to: Timex.Duration, as: :to_minutes
+  defdelegate in_sekunden(dauer), to: Timex.Duration, as: :to_seconds
   defdelegate negiere(dauer), to: Timex.Duration, as: :invert
   defdelegate addiere(dauer, zweite_dauer), to: Timex.Duration, as: :add
   defdelegate subtrahiere(dauer, zweite_dauer), to: Timex.Duration, as: :sub
