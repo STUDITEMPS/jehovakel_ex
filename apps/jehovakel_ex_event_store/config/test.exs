@@ -1,7 +1,5 @@
 use Mix.Config
 
-config :ecto, :json_library, Jason
-
 config :jehovakel_ex_event_store,
   ecto_repos: [Support.Repo]
 
