@@ -79,6 +79,10 @@ defmodule Shared.Zeitperiode do
     zu_testende_periode.from in periode && zu_testende_periode.until in periode
   end
 
+  def beginnt_vor?(periode1, periode2) do
+    NaiveDateTime.compare(periode1.from, periode2.from) == :lt
+  end
+
   def to_string(periode), do: Timex.Interval.format!(periode, "%Y-%m-%d %H:%M", :strftime)
 
   defp to_interval(von, bis) do

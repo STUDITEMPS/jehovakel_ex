@@ -102,6 +102,28 @@ defmodule Shared.ZeitperiodeTest do
     end
   end
 
+  describe "beginnt_vor\2" do
+    test "p1 liegt vor p2" do
+      periode = Periode.new(~D[2018-03-20], ~T[16:00:00], ~T[18:00:00])
+      andere_periode = Periode.new(~D[2018-03-20], ~T[18:00:00], ~T[22:00:00])
+
+      assert true === Periode.beginnt_vor?(periode, andere_periode)
+    end
+
+    test "p1 liegt nach p2" do
+      periode = Periode.new(~D[2018-03-20], ~T[16:00:00], ~T[18:00:00])
+      andere_periode = Periode.new(~D[2018-03-20], ~T[18:00:00], ~T[22:00:00])
+
+      assert false === Periode.beginnt_vor?(andere_periode, periode)
+    end
+
+    test "p1 ist gleich zu p2" do
+      periode = Periode.new(~D[2018-03-20], ~T[16:00:00], ~T[18:00:00])
+
+      assert false === Periode.beginnt_vor?(periode, periode)
+    end
+  end
+
   describe "kann mit Zeiten mit Zeitzonen umgehen" do
     test "wenn es eine Zeitumstellung auf Sommerzeit gibt" do
       {:ok, start, _offset} = DateTime.from_iso8601("2018-03-24T22:00:00+01:00")
