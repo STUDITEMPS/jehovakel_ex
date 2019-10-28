@@ -38,6 +38,12 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
   Load from the native Ecto representation
   """
   def load({%DateTime{} = dt, timezone}) do
+    timezone =
+      case Timex.Timezone.get(timezone, dt) do
+        %Timex.AmbiguousTimezoneInfo{after: winter_time_zone} -> winter_time_zone
+        %Timex.TimezoneInfo{} = timezone -> timezone
+      end
+
     # FIXME: handle AmbiguousDateTime
     dt_with_timezone = Timex.set(dt, timezone: timezone, microsecond: {0, 0})
 

@@ -123,5 +123,15 @@ if Code.ensure_loaded?(Postgrex) do
       [%User{datetimetz_test: deserialized_datetimetz}] = Repo.all(query)
       assert Timex.compare(datetimetz, deserialized_datetimetz, :seconds) == 0
     end
+
+    test "load time with time zone daylight saving switch" do
+      {:ok, datetime, _} = "2019-10-27 02:15:00+00" |> DateTime.from_iso8601()
+      in_db = {datetime, "Europe/Berlin"}
+
+      assert {:ok, %DateTime{std_offset: winter_time_offset} = datetime} =
+               Timex.Ecto.DateTimeWithTimezone.load(in_db)
+
+      assert winter_time_offset == 0
+    end
   end
 end
