@@ -44,7 +44,6 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
         %Timex.TimezoneInfo{} = timezone -> timezone
       end
 
-    # FIXME: handle AmbiguousDateTime
     dt_with_timezone = Timex.set(dt, timezone: timezone, microsecond: {0, 0})
 
     {:ok, dt_with_timezone}
