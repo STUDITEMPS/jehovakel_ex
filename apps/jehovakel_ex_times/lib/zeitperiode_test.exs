@@ -156,6 +156,30 @@ defmodule Shared.ZeitperiodeTest do
       assert to_string(periode.until) == "2018-10-28 05:00:00"
     end
 
+    test "kann die Zeitzone bei der Umstellung auf Winterzeit ermitteln" do
+      {:ok, start, _offset} = DateTime.from_iso8601("2019-10-26T17:50:00+02:00")
+
+      start = %{
+        start
+        | std_offset: 3600,
+          utc_offset: 3600,
+          time_zone: "Europe/Berlin",
+          zone_abbr: "CEST"
+      }
+
+      {:ok, ende, _offset} = DateTime.from_iso8601("2019-10-27T03:50:00+01:00")
+
+      ende = %{
+        ende
+        | std_offset: 0,
+          utc_offset: 3600,
+          time_zone: "Europe/Berlin",
+          zone_abbr: "CET"
+      }
+
+      assert periode = Periode.new(start, ende)
+    end
+
     test "wenn es keine Zeitumstellung gibt" do
       start =
         Timex.to_datetime(
