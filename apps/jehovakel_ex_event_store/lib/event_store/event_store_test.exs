@@ -9,19 +9,39 @@ defmodule Shared.EventTest do
   # use Support.DataCase
   @moduletag :integration
   alias Shared.EventTest.FailingEventStoreBackend
-  alias Shared.EventStore
 
   @event %Shared.EventTest.FakeEvent{}
   @metadata %{meta: "data"}
 
+  setup _tags do
+    # reset eventstore
+    config = EventStore.Config.parsed()
+    postgrex_config = EventStore.Config.default_postgrex_opts(config)
+    {:ok, eventstore_connection} = Postgrex.start_link(postgrex_config)
+    EventStore.Storage.Initializer.reset!(eventstore_connection)
+    {:ok, _} = Application.ensure_all_started(:eventstore)
+
+    on_exit(fn ->
+      # stop eventstore application
+      Application.stop(:eventstore)
+      Process.exit(eventstore_connection, :shutdown)
+    end)
+
+    :ok
+  end
+
   test "append event to stream" do
-    assert {:ok, [%{data: @event}]} = EventStore.append_event(@event, @metadata)
-    assert [%{data: @event}] = EventStore.all_events()
+    assert {:ok, [%{data: @event}]} = Shared.EventStore.append_event(@event, @metadata)
+
+    assert [%EventStore.RecordedEvent{data: @event, metadata: @metadata}] =
+             Shared.EventStore.all_events(nil, unwrap: false)
+
+    assert [{@event, @metadata}] = Shared.EventStore.all_events()
   end
 
   test "returns error tuple if save fails" do
     assert {:error, "something bad happend"} =
-             EventStore.append_event(@event, @metadata, FailingEventStoreBackend)
+             Shared.EventStore.append_event(@event, @metadata, FailingEventStoreBackend)
   end
 
   test "logs event on appending to event store" do

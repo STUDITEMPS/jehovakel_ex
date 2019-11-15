@@ -22,6 +22,18 @@ defmodule Shared.EventStoreListener do
               | :skip
               | {:stop, reason :: term()}
 
+  @callback on_error(
+              error :: term(),
+              stacktrace :: list(),
+              failed_event :: domain_event(),
+              metadata :: metadata(),
+              failure_context :: failure_context()
+            ) ::
+              {:retry, failure_context :: failure_context()}
+              | {:retry, delay :: non_neg_integer(), failure_context :: failure_context()}
+              | :skip
+              | {:stop, reason :: term()}
+
   defmacro __using__(opts) do
     opts = opts || []
 
@@ -98,6 +110,11 @@ defmodule Shared.EventStoreListener do
 
       def on_error({:error, reason}, _event, _metadata, _context), do: {:stop, reason}
       defoverridable on_error: 4
+
+      def on_error(error, _stacktrace, event, metadata, context),
+        do: on_error(error, event, metadata, context)
+
+      defoverridable on_error: 5
     end
   end
 
@@ -157,7 +174,15 @@ defmodule Shared.EventStoreListener do
           "#{name} failed to handle event #{inspect(event)} due to #{inspect(reason)}"
         end)
 
-        handle_error(error, event, state, context)
+        handle_error(error, nil, event, state, context)
+
+      {:error, reason, stacktrace} = error ->
+        Logger.error(fn ->
+          "#{name} failed to handle event #{inspect(event)} due to #{inspect(reason)}"
+        end)
+
+        error = Tuple.delete_at(error, 2)
+        handle_error(error, stacktrace, event, state, context)
     end
   end
 
@@ -168,18 +193,24 @@ defmodule Shared.EventStoreListener do
          } = state
        ) do
     try do
-      {domain_event, metadata} = Shared.EventStoreListener.unwrap_event(event)
+      {domain_event, metadata} = Shared.EventStoreEvent.unwrap(event)
       handler_module.handle(domain_event, metadata, state)
     rescue
       error ->
-        {:error, error}
+        {:error, error, __STACKTRACE__}
     end
   end
 
-  defp handle_error(error, event, %{handler_module: handler_module, name: name} = state, context) do
+  defp handle_error(
+         error,
+         stacktrace,
+         event,
+         %{handler_module: handler_module, name: name} = state,
+         context
+       ) do
     %RecordedEvent{data: domain_event, metadata: metadata} = event
 
-    case handler_module.on_error(error, domain_event, metadata, context) do
+    case handler_module.on_error(error, stacktrace, domain_event, metadata, context) do
       {:retry, context} when is_map(context) ->
         Logger.debug(fn ->
           "#{name} is retrying failed event #{inspect(event)}"
@@ -241,22 +272,5 @@ defmodule Shared.EventStoreListener do
     )
 
     subscription_key
-  end
-
-  def unwrap_event(%RecordedEvent{data: domain_event, metadata: metadata} = event) do
-    metadata = Enum.into(metadata, %{})
-
-    recorded_event_metadata =
-      Map.take(event, [
-        :event_number,
-        :event_id,
-        :stream_uuid,
-        :stream_version,
-        :correlation_id,
-        :causation_id,
-        :created_at
-      ])
-
-    {domain_event, Map.merge(recorded_event_metadata, metadata)}
   end
 end

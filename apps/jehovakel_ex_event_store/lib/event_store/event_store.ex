@@ -21,14 +21,18 @@ defmodule Shared.EventStore do
     end
   end
 
-  def all_events do
-    {:ok, events} = EventStore.read_all_streams_forward()
-    events
-  end
+  def all_events(stream_id \\ nil, opts \\ []) do
+    {:ok, events} =
+      case stream_id do
+        nil -> EventStore.read_all_streams_forward()
+        stream_id when is_binary(stream_id) -> EventStore.read_stream_forward(stream_id)
+      end
 
-  def all_events(stream_id) do
-    {:ok, events} = EventStore.read_stream_forward(stream_id)
-    events
+    if Keyword.get(opts, :unwrap, true) do
+      Enum.map(events, &Shared.EventStoreEvent.unwrap/1)
+    else
+      events
+    end
   end
 
   defp log(stream_uuid, events, metadata) do
