@@ -1,11 +1,12 @@
 use Mix.Config
 
-{username, 0} = System.cmd("whoami", [])
-username = username |> String.trim_trailing("\n")
-
 config :jehovakel_ex_ecto, ecto_repos: [EctoTest.Repo]
 
 config :jehovakel_ex_ecto, EctoTest.Repo,
-  database: "jehovakel_ex_ecto_test",
-  username: username,
-  pool: Ecto.Adapters.SQL.Sandbox
+  pool: Ecto.Adapters.SQL.Sandbox,
+  adapter: Ecto.Adapters.Postgres,
+  username: System.get_env("PG_USER") || System.get_env()["USER"],
+  password: System.get_env("PG_PASSWORD") || "",
+  port: System.get_env("PG_PORT") || "5432",
+  hostname: System.get_env("PG_HOST") || "localhost",
+  database: System.get_env("PG_NAME") || "jehovakel_ex_ecto_#{Mix.env()}"
