@@ -126,6 +126,18 @@ defmodule Shared.Zeitperiode do
   defp duration(periode, :minutes),
     do: periode |> duration(:duration) |> Timex.Duration.to_minutes() |> Float.round()
 
+  def dauer_der_ueberschneidung(periode1, periode2) do
+    dauer1 = dauer(periode1)
+
+    dauer_differenz = case Timex.Interval.difference(periode1, periode2) do
+      [] -> Shared.Dauer.leer()
+      [periode] -> dauer(periode)
+      [periode1, periode2] -> Shared.Dauer.addiere(dauer(periode1), dauer(periode2))
+    end
+
+    Shared.Dauer.subtrahiere(dauer1, dauer_differenz)
+  end
+
   defmodule Timezone do
     def convert(datetime, timezone) do
       case Timex.Timezone.convert(datetime, timezone) do

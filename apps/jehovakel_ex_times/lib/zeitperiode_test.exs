@@ -315,4 +315,25 @@ defmodule Shared.ZeitperiodeTest do
              |> Periode.teil_von?(periode)
     end
   end
+
+  describe "dauer_der_ueberschneidung/2" do
+    test "test" do
+      dauer_der_ueberschneidung_test = fn (start_ende_1, start_ende_2, erwartet) ->
+        [start1, ende1] = start_ende_1 |> String.split("-") |> Enum.map(& &1 <> ":00") |> Enum.map(&Time.from_iso8601!/1)
+        [start2, ende2] = start_ende_2 |> String.split("-") |> Enum.map(& &1 <> ":00") |> Enum.map(&Time.from_iso8601!/1)
+
+        periode1 = Periode.new(~D[2018-03-20], start1, ende1)
+        periode2 = Periode.new(~D[2018-03-20], start2, ende2)
+        dauer = Periode.dauer_der_ueberschneidung(periode1, periode2)
+
+        assert dauer == Shared.Dauer.aus_stundenzahl(erwartet)
+      end
+
+      assert dauer_der_ueberschneidung_test.("10:00-12:00", "10:00-12:00", 2.0)
+      assert dauer_der_ueberschneidung_test.("10:00-12:00", "12:00-13:00", 0.0)
+      assert dauer_der_ueberschneidung_test.("10:00-13:00", "11:00-12:00", 1.0)
+      assert dauer_der_ueberschneidung_test.("09:00-13:00", "11:00-12:00", 1.0)
+      assert dauer_der_ueberschneidung_test.("12:00-13:00", "10:00-14:00", 1.0)
+    end
+  end
 end
