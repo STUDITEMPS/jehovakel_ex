@@ -252,6 +252,35 @@ defmodule Timex.Ecto.DateTimeWithTimezone.Query do
   end
 
   @doc """
+    Tests two given intervals for overlap.
+    math: [interval_start_left, interval_end_left) union [interval_start_right, interval_end_right) != Interval.empty
+
+    Dieses Makro brauch dass auch datetime_less_than importiert wurde.
+
+    source: https://stackoverflow.com/questions/3269434/whats-the-most-efficient-way-to-test-two-integer-ranges-for-overlap
+  """
+  defmacro datetime_intervals_overlap(
+             interval_start_left,
+             interval_end_left,
+             interval_start_right,
+             interval_end_right
+           ) do
+    quote do
+      fragment(
+        "(? and ?)",
+        datetime_less_than(
+          unquote(interval_start_left),
+          unquote(interval_end_right)
+        ),
+        datetime_less_than(
+          unquote(interval_start_right),
+          unquote(interval_end_left)
+        )
+      )
+    end
+  end
+
+  @doc """
   Casting for Datetimes with time zone, uses the datetime part only.
   Useful for `order_by`, for example
   """
