@@ -60,6 +60,8 @@ if Code.ensure_loaded?(Postgrex) do
       Application.ensure_all_started(:ecto)
       EctoTest.App.start(:normal, [])
 
+      Code.ensure_loaded?(Timex.Ecto.DateTimeWithTimezone.Migration)
+
       Ecto.Migrator.run(
         Repo,
         [{0, Timex.Ecto.DateTimeWithTimezone.Migration}, {1, EctoTest.Migrations.Setup}],
