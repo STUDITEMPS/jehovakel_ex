@@ -28,9 +28,15 @@ defmodule Shared.Ecto.Interval do
     :error
   end
 
-  def dump(%Timex.Duration{megaseconds: megaseconds, microseconds: 0, seconds: remainder_seconds})
-      when is_integer(remainder_seconds) and is_integer(megaseconds) do
-    seconds = megaseconds_to_seconds(megaseconds) + remainder_seconds
+  def dump(%Timex.Duration{
+        megaseconds: megaseconds,
+        microseconds: microseconds,
+        seconds: remainder_seconds
+      })
+      when is_integer(remainder_seconds) and is_integer(microseconds) and is_integer(megaseconds) do
+    seconds =
+      megaseconds_to_seconds(megaseconds) + microseconds_to_seconds(microseconds) +
+        remainder_seconds
 
     {days, new_remainder_seconds} = seconds_to_days_and_remainder_seconds(seconds)
 
@@ -58,6 +64,7 @@ defmodule Shared.Ecto.Interval do
   end
 
   defp megaseconds_to_seconds(megaseconds), do: megaseconds * 1_000_000
+  defp microseconds_to_seconds(microseconds), do: round(microseconds / 1_000_000)
   defp seconds_per_day, do: 60 * 60 * 24
 
   defp seconds_to_days_and_remainder_seconds(seconds) do

@@ -59,6 +59,16 @@ defmodule Shared.Ecto.IntervalTest do
               }}
   end
 
+  test "dump/1 converts a value with microseconds" do
+    assert Interval.dump(%Timex.Duration{megaseconds: 0, seconds: 45644, microseconds: 40000}) ==
+             {:ok,
+              %Postgrex.Interval{
+                months: 0,
+                days: 0,
+                secs: 45_644
+              }}
+  end
+
   test "load/1 mit days" do
     assert Interval.load(%Postgrex.Interval{
              months: 0,
