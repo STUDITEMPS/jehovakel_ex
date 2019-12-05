@@ -16,4 +16,10 @@ defmodule Shared.DauerTest do
       assert Dauer.aus_stundenzahl(0) |> Dauer.valide?() == true
     end
   end
+
+  describe "parse!/1" do
+    test "ISO8601 Format" do
+      assert Dauer.parse!("PT6H30M") == Dauer.aus_stundenzahl(6.5)
+    end
+  end
 end

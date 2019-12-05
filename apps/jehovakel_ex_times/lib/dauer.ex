@@ -19,4 +19,9 @@ defmodule Shared.Dauer do
   def valide?(dauer) do
     dauer == Timex.Duration.abs(dauer)
   end
+
+  def parse!(dauer_als_string) when is_binary(dauer_als_string) do
+    {:ok, dauer} = Timex.Duration.parse(dauer_als_string)
+    dauer
+  end
 end
