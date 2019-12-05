@@ -4,7 +4,7 @@ defmodule JehovakelExTimes.MixProject do
   def project do
     [
       app: :jehovakel_ex_times,
-      version: "0.1.0",
+      version: "0.2.0",
       build_path: "_build",
       deps_path: "deps",
       elixir: "~> 1.7",
