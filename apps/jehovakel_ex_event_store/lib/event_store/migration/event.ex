@@ -1,4 +1,4 @@
-if Code.ensure_loaded?(Ecto) do
+if Code.ensure_loaded?(Ecto) && Code.ensure_loaded?(Shared.Ecto.Term) do
   defmodule Shared.EventStore.Migration.Event do
     @moduledoc """
     Warnung: Diese Datei ist ungetestet. Vergewissere dich, dass du deine Skripte, die darauf basieren gut lokal und
