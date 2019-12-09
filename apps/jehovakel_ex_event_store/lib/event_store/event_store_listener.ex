@@ -75,10 +75,12 @@ defmodule Shared.EventStoreListener do
       handler_module: nil,
       subscription_key: nil,
       subscription: nil,
-      start_from: :origin
+      start_from: :origin,
+      event_store: nil
     }
 
     opts = Enum.into(opts, default_opts)
+    opts[:event_store] || raise "Event Store(event_store: My.EventStore) configuration is missing"
 
     state = %{opts | handler_module: handler_module, name: name}
 
@@ -119,12 +121,14 @@ defmodule Shared.EventStoreListener do
   end
 
   @impl true
-  def init(%{name: handler_name, handler_module: handler_module} = state) do
+  def init(
+        %{name: handler_name, handler_module: handler_module, event_store: event_store} = state
+      ) do
     with {:ok, new_state} <- handler_module.init(state),
          subscription_key = new_state[:subscription_key] || subscription_key_for(handler_name),
          start_from = new_state[:start_from] || :origin,
          {:ok, subscription} <-
-           EventStore.subscribe_to_all_streams(
+           event_store.subscribe_to_all_streams(
              subscription_key,
              self(),
              start_from: start_from
@@ -249,8 +253,8 @@ defmodule Shared.EventStoreListener do
     end
   end
 
-  defp ack_event(event, %{subscription: subscription}) do
-    :ok = EventStore.ack(subscription, event)
+  defp ack_event(event, %{subscription: subscription, event_store: event_store}) do
+    :ok = event_store.ack(subscription, event)
   end
 
   @deprecated """

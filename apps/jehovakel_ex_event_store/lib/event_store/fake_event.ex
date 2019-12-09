@@ -6,7 +6,7 @@ defmodule Shared.EventTest.FakeEvent do
   defstruct some: :default
 end
 
-defimpl LoggableEvent, for: Shared.EventTest.FakeEvent do
+defimpl Shared.LoggableEvent, for: Shared.EventTest.FakeEvent do
   def to_log(_event) do
     "FakeEvent: logging"
   end
