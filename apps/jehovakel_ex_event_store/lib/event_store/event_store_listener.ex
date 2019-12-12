@@ -161,7 +161,7 @@ defmodule Shared.EventStoreListener do
 
   @impl true
   def handle_call(:get_state, _from, state) do
-    {:reply, state}
+    {:reply, state, state}
   end
 
   defp handle_event(
