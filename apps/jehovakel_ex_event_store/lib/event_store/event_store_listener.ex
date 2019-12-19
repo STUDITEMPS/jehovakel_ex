@@ -3,9 +3,41 @@ defmodule Shared.EventStoreListener do
   require Logger
   alias EventStore.RecordedEvent
 
+  defmodule ErrorContext do
+    defstruct error_count: 0, max_retries: 3, delay_factor: 10
+
+    def new do
+      %__MODULE__{error_count: 0, max_retries: 3}
+    end
+
+    def record_error(%__MODULE__{} = context) do
+      Map.update(context, :error_count, 1, fn error_count -> error_count + 1 end)
+    end
+
+    def retry?(%__MODULE__{error_count: error_count, max_retries: max_retries}) do
+      error_count < max_retries
+    end
+
+    def retry_count(%__MODULE__{error_count: error_count}) do
+      error_count
+    end
+
+    def delay(%__MODULE__{
+          error_count: error_count,
+          max_retries: max_retries,
+          delay_factor: delay_factor
+        })
+        when error_count < max_retries do
+      # Exponential backoff
+      sleep_duration = (:math.pow(2, error_count) * delay_factor) |> round()
+
+      Process.sleep(sleep_duration)
+    end
+  end
+
   @type domain_event :: struct()
   @type metadata :: map()
-  @type failure_context :: map()
+  @type error_context :: struct()
   @type state :: map() | list()
   @type handle_result :: :ok | {:error, reason :: any()}
 
@@ -15,10 +47,10 @@ defmodule Shared.EventStoreListener do
               error :: term(),
               failed_event :: domain_event(),
               metadata :: metadata(),
-              failure_context :: failure_context()
+              error_context :: error_context()
             ) ::
-              {:retry, failure_context :: failure_context()}
-              | {:retry, delay :: non_neg_integer(), failure_context :: failure_context()}
+              {:retry, error_context :: error_context()}
+              | {:retry, delay :: non_neg_integer(), error_context :: error_context()}
               | :skip
               | {:stop, reason :: term()}
 
@@ -27,10 +59,10 @@ defmodule Shared.EventStoreListener do
               stacktrace :: list(),
               failed_event :: domain_event(),
               metadata :: metadata(),
-              failure_context :: failure_context()
+              error_context :: error_context()
             ) ::
-              {:retry, failure_context :: failure_context()}
-              | {:retry, delay :: non_neg_integer(), failure_context :: failure_context()}
+              {:retry, error_context :: error_context()}
+              | {:retry, delay :: non_neg_integer(), error_context :: error_context()}
               | :skip
               | {:stop, reason :: term()}
 
@@ -110,11 +142,13 @@ defmodule Shared.EventStoreListener do
       def handle(event, metadata, _state), do: handle(event, metadata)
       defoverridable handle: 3
 
-      def on_error({:error, reason}, _event, _metadata, _context), do: {:stop, reason}
+      def on_error({:error, reason}, _event, _metadata, error_context),
+        do: {:retry, error_context}
+
       defoverridable on_error: 4
 
-      def on_error(error, _stacktrace, event, metadata, context),
-        do: on_error(error, event, metadata, context)
+      def on_error(error, _stacktrace, event, metadata, error_context),
+        do: on_error(error, event, metadata, error_context)
 
       defoverridable on_error: 5
     end
@@ -151,7 +185,7 @@ defmodule Shared.EventStoreListener do
     Logger.debug(fn -> "#{name} received events: #{inspect(events)}" end)
 
     try do
-      Enum.each(events, fn event -> handle_event(event, state, Map.new()) end)
+      Enum.each(events, fn event -> handle_event(event, state, ErrorContext.new()) end)
       {:noreply, state}
     catch
       {:error, reason} ->
@@ -167,26 +201,25 @@ defmodule Shared.EventStoreListener do
   defp handle_event(
          %RecordedEvent{} = event,
          %{name: name} = state,
-         %{} = context
+         %ErrorContext{} = error_context
        ) do
     case delegate_event_to_handler(event, state) do
       :ok ->
         ack_event(event, state)
 
-      {:error, reason} = error ->
+      {:error, reason} ->
         Logger.error(fn ->
           "#{name} failed to handle event #{inspect(event)} due to #{inspect(reason)}"
         end)
 
-        handle_error(error, nil, event, state, context)
+        handle_error({:error, reason}, current_stacktrace(), event, state, error_context)
 
-      {:error, reason, stacktrace} = error ->
+      {:error, reason, stacktrace} ->
         Logger.error(fn ->
           "#{name} failed to handle event #{inspect(event)} due to #{inspect(reason)}"
         end)
 
-        error = Tuple.delete_at(error, 2)
-        handle_error(error, stacktrace, event, state, context)
+        handle_error({:error, reason}, stacktrace, event, state, error_context)
     end
   end
 
@@ -215,20 +248,29 @@ defmodule Shared.EventStoreListener do
     %RecordedEvent{data: domain_event, metadata: metadata} = event
 
     case handler_module.on_error(error, stacktrace, domain_event, metadata, context) do
-      {:retry, context} when is_map(context) ->
-        Logger.debug(fn ->
-          "#{name} is retrying failed event #{inspect(event)}"
-        end)
+      {:retry, %ErrorContext{} = context} ->
+        context = ErrorContext.record_error(context)
 
-        handle_event(event, state, context)
+        if ErrorContext.retry?(context) do
+          ErrorContext.delay(context)
 
-      {:retry, delay, context} when is_map(context) and is_integer(delay) and delay > 0 ->
-        Logger.debug(fn ->
-          "#{name} is retrying failed event #{inspect(event)} after #{delay}ms"
-        end)
+          Logger.warn(fn ->
+            "#{name} is retrying (#{context.error_count}/#{context.max_retries}) failed event #{
+              inspect(event)
+            }"
+          end)
 
-        :timer.sleep(delay)
-        handle_event(event, state, context)
+          handle_event(event, state, context)
+        else
+          reason =
+            "#{name} is dying due to bad event after #{ErrorContext.retry_count(context)} retries #{
+              inspect(error)
+            }, Stacktrace: #{inspect(stacktrace)}"
+
+          Logger.error(reason)
+
+          throw({:error, reason})
+        end
 
       :skip ->
         Logger.debug(fn ->
@@ -238,18 +280,24 @@ defmodule Shared.EventStoreListener do
         ack_event(event, state)
 
       {:stop, reason} ->
-        Logger.warn(fn ->
-          "#{name} has requested to stop with #{inspect(reason)}"
-        end)
+        reason = "#{name} has requested to stop in on_error/5 callback with #{inspect(reason)}"
 
+        Logger.warn(reason)
         throw({:error, reason})
 
       error ->
         Logger.warn(fn ->
-          "#{name} returned an invalid response #{inspect(error)}"
+          "#{name} on_error/5 returned an invalid response #{inspect(error)}"
         end)
 
         throw(error)
+    end
+  end
+
+  defp current_stacktrace do
+    case Process.info(self(), :current_stacktrace) do
+      {:current_stacktrace, stacktrace} -> stacktrace
+      nil -> "Process is not alive. No stacktrace available"
     end
   end
 
