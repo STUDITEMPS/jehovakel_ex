@@ -1,5 +1,6 @@
 defmodule Shared.EventStoreListenerTest do
   use ExUnit.Case
+  import ExUnit.CaptureLog
   @moduletag :integration
 
   @event %Shared.EventTest.FakeEvent{}
@@ -62,18 +63,22 @@ defmodule Shared.EventStoreListenerTest do
 
   describe "Retry" do
     test "automatically on Exception during event handling without GenServer restart" do
-      {:ok, _events} = JehovakelEx.EventStore.append_event(@event, %{test_pid: self()})
+      capture_log(fn ->
+        {:ok, _events} = JehovakelEx.EventStore.append_event(@event, %{test_pid: self()})
 
-      assert_receive :exception_during_event_handling
-      assert_receive :event_handled_successfully
+        assert_receive :exception_during_event_handling
+        assert_receive :event_handled_successfully
+      end)
     end
 
     test "does not restart Listener process" do
-      listener_pid = Process.whereis(ExampleConsumer)
-      {:ok, _events} = JehovakelEx.EventStore.append_event(@event, %{test_pid: self()})
+      capture_log(fn ->
+        listener_pid = Process.whereis(ExampleConsumer)
+        {:ok, _events} = JehovakelEx.EventStore.append_event(@event, %{test_pid: self()})
 
-      assert_receive :event_handled_successfully
-      assert listener_pid == Process.whereis(ExampleConsumer)
+        assert_receive :event_handled_successfully
+        assert listener_pid == Process.whereis(ExampleConsumer)
+      end)
     end
 
     # test "stops after 3 attempts"
