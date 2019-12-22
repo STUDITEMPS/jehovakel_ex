@@ -63,6 +63,10 @@ defmodule Shared.Ecto.Interval do
     :error
   end
 
+  def embed_as(_), do: :self
+
+  def equal?(interval1, interval2), do: interval1 == interval2
+
   defp megaseconds_to_seconds(megaseconds), do: megaseconds * 1_000_000
   defp microseconds_to_seconds(microseconds), do: round(microseconds / 1_000_000)
   defp seconds_per_day, do: 60 * 60 * 24
