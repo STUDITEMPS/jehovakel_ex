@@ -10,13 +10,16 @@ if Code.ensure_loaded?(Ecto) && Code.ensure_loaded?(Shared.Ecto.Term) do
     require Logger
 
     @primary_key {:event_id, :binary_id, autogenerate: false}
+    @primary_key {:event_id, :binary_id, autogenerate: false}
     schema "events" do
-      field(:data, Shared.Ecto.Term)
       field(:event_type, :string)
+      field(:data, Shared.Ecto.Term)
+      field(:metadata, Shared.Ecto.Term)
+      field(:created_at, :utc_datetime)
     end
 
-    def migrate_event(event_type_to_migrate, migration, repository \\ Arbeitsentgelt.Repo)
-        when is_atom(event_type_to_migrate) and is_function(migration, 1) do
+    def migrate_event(event_type_to_migrate, migration, repository)
+        when is_atom(event_type_to_migrate) and is_function(migration, 2) do
       event_type = Atom.to_string(event_type_to_migrate)
 
       events =
@@ -37,18 +40,23 @@ if Code.ensure_loaded?(Ecto) && Code.ensure_loaded?(Shared.Ecto.Term) do
 
         multi =
           Enum.reduce(events, Ecto.Multi.new(), fn event, multi ->
-            new_data = migration.(event.data)
-            changeset = change(event, data: new_data)
+            {new_data, new_metadata} = migration.(event.data, event.metadata)
+            %event_module{} = new_data
+            event_type = Atom.to_string(event_module)
+
+            changeset =
+              change(event, event_type: event_type, data: new_data, metadata: new_metadata)
+
             Ecto.Multi.update(multi, event.event_id, changeset)
           end)
 
-        repository.transaction(multi)
-
-        Ecto.Adapters.SQL.query!(
-          repository,
-          "CREATE RULE no_update_events AS ON UPDATE TO events DO INSTEAD NOTHING"
-        )
+        repository.transaction(multi, timeout: 600_000_000)
       end
+    after
+      Ecto.Adapters.SQL.query!(
+        repository,
+        "CREATE RULE no_update_events AS ON UPDATE TO events DO INSTEAD NOTHING"
+      )
     end
   end
 end
