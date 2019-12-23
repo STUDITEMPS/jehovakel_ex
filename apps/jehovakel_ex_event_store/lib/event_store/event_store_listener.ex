@@ -6,6 +6,12 @@ defmodule Shared.EventStoreListener do
   defmodule ErrorContext do
     defstruct error_count: 0, max_retries: 3, delay_factor: 10
 
+    @type t :: %__MODULE__{
+            error_count: integer,
+            max_retries: integer,
+            delay_factor: integer
+          }
+
     def new do
       %__MODULE__{error_count: 0, max_retries: 3}
     end
@@ -37,7 +43,7 @@ defmodule Shared.EventStoreListener do
 
   @type domain_event :: struct()
   @type metadata :: map()
-  @type error_context :: struct()
+  @type error_context :: ErrorContext.t()
   @type state :: map() | list()
   @type handle_result :: :ok | {:error, reason :: any()}
 
