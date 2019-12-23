@@ -105,5 +105,19 @@ defmodule Shared.EventStoreListenerTest do
     end
   end
 
-  # test "Log Stacktrace on exception during event handling"
+  test "Log Stacktrace on failing to handle exception during event handling" do
+    logs =
+      capture_log(fn ->
+        {:ok, _events} =
+          JehovakelEx.EventStore.append_event(@event, %{test_pid: self(), raise_until: 4})
+
+        assert_receive :exception_during_event_handling
+        assert_receive :event_handled_successfully, 200
+      end)
+
+    assert logs =~ "Stacktrace"
+    assert logs =~ "BAM BAM BAM"
+    assert logs =~ "Shared.EventStoreListenerTest.ExampleConsumer"
+    assert logs =~ "lib/event_store/event_store_listener_test.exs"
+  end
 end
