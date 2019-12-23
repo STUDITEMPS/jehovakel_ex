@@ -1,5 +1,5 @@
 defmodule Shared.EventStoreListenerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   import ExUnit.CaptureLog
   @moduletag :integration
 
@@ -26,9 +26,9 @@ defmodule Shared.EventStoreListenerTest do
       subscription_key: "example_consumer",
       event_store: JehovakelEx.EventStore
 
-    def handle(_event, %{test_pid: test_pid}) do
+    def handle(_event, %{test_pid: test_pid, raise_until: raise_until}) do
       case Counter.increment() do
-        0 ->
+        count when count <= raise_until ->
           send(test_pid, :exception_during_event_handling)
           raise EventHandlingError, "BAM BAM BAM"
 
@@ -64,7 +64,8 @@ defmodule Shared.EventStoreListenerTest do
   describe "Retry" do
     test "automatically on Exception during event handling without GenServer restart" do
       capture_log(fn ->
-        {:ok, _events} = JehovakelEx.EventStore.append_event(@event, %{test_pid: self()})
+        {:ok, _events} =
+          JehovakelEx.EventStore.append_event(@event, %{test_pid: self(), raise_until: 0})
 
         assert_receive :exception_during_event_handling
         assert_receive :event_handled_successfully
@@ -74,14 +75,34 @@ defmodule Shared.EventStoreListenerTest do
     test "does not restart Listener process" do
       capture_log(fn ->
         listener_pid = Process.whereis(ExampleConsumer)
-        {:ok, _events} = JehovakelEx.EventStore.append_event(@event, %{test_pid: self()})
+
+        {:ok, _events} =
+          JehovakelEx.EventStore.append_event(@event, %{test_pid: self(), raise_until: 0})
 
         assert_receive :event_handled_successfully
         assert listener_pid == Process.whereis(ExampleConsumer)
       end)
     end
 
-    # test "stops after 3 attempts"
+    test "stops after 3 attempts" do
+      logs =
+        capture_log(fn ->
+          listener_pid = Process.whereis(ExampleConsumer)
+
+          {:ok, _events} =
+            JehovakelEx.EventStore.append_event(@event, %{test_pid: self(), raise_until: 3})
+
+          assert_receive :exception_during_event_handling
+          assert_receive :event_handled_successfully, 200
+
+          assert listener_pid != Process.whereis(ExampleConsumer)
+        end)
+
+      assert logs =~ "ExampleConsumer is retrying (1/3)"
+      assert logs =~ "ExampleConsumer is retrying (2/3)"
+      assert logs =~ "ExampleConsumer is retrying (3/3)"
+      assert logs =~ "is dying due to bad event after 3 retries"
+    end
   end
 
   # test "Log Stacktrace on exception during event handling"

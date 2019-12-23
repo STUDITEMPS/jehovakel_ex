@@ -15,11 +15,11 @@ defmodule Shared.EventStoreListener do
     end
 
     def retry?(%__MODULE__{error_count: error_count, max_retries: max_retries}) do
-      error_count < max_retries
+      error_count <= max_retries
     end
 
     def retry_count(%__MODULE__{error_count: error_count}) do
-      error_count
+      error_count - 1
     end
 
     def delay(%__MODULE__{
@@ -27,7 +27,7 @@ defmodule Shared.EventStoreListener do
           max_retries: max_retries,
           delay_factor: delay_factor
         })
-        when error_count < max_retries do
+        when error_count <= max_retries do
       # Exponential backoff
       sleep_duration = (:math.pow(2, error_count) * delay_factor) |> round()
 
@@ -267,7 +267,7 @@ defmodule Shared.EventStoreListener do
               inspect(error)
             }, Stacktrace: #{inspect(stacktrace)}"
 
-          Logger.error(reason)
+          Logger.warn(reason)
 
           throw({:error, reason})
         end
