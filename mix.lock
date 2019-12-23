@@ -1,129 +1,28 @@
 %{
-  certifi:
-    {:hex, :certifi, "2.5.1", "867ce347f7c7d78563450a18a6a28a8090331e77fa02380b4a21962a65d36ee5",
-     [:rebar3], [{:parse_trans, "~>3.3", [hex: :parse_trans, repo: "hexpm", optional: false]}],
-     "hexpm"},
-  combine:
-    {:hex, :combine, "0.10.0", "eff8224eeb56498a2af13011d142c5e7997a80c8f5b97c499f84c841032e429f",
-     [:mix], [], "hexpm"},
-  connection:
-    {:hex, :connection, "1.0.4",
-     "a1cae72211f0eef17705aaededacac3eb30e6625b04a6117c1b2db6ace7d5976", [:mix], [], "hexpm"},
-  db_connection:
-    {:hex, :db_connection, "2.0.6",
-     "bde2f85d047969c5b5800cb8f4b3ed6316c8cb11487afedac4aa5f93fd39abfa", [:mix],
-     [{:connection, "~> 1.0.2", [hex: :connection, repo: "hexpm", optional: false]}], "hexpm"},
-  decimal:
-    {:hex, :decimal, "1.7.0", "30d6b52c88541f9a66637359ddf85016df9eb266170d53105f02e4a67e00c5aa",
-     [:mix], [], "hexpm"},
-  ecto:
-    {:hex, :ecto, "3.1.4", "69d852da7a9f04ede725855a35ede48d158ca11a404fe94f8b2fb3b2162cd3c9",
-     [:mix],
-     [
-       {:decimal, "~> 1.6", [hex: :decimal, repo: "hexpm", optional: false]},
-       {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: true]}
-     ], "hexpm"},
-  ecto_sql:
-    {:hex, :ecto_sql, "3.1.4", "ac36c453542bae69e93a6882c8448743b2bb353cae3587910e5eb3aa8e96a52d",
-     [:mix],
-     [
-       {:db_connection, "~> 2.0", [hex: :db_connection, repo: "hexpm", optional: false]},
-       {:ecto, "~> 3.1.0", [hex: :ecto, repo: "hexpm", optional: false]},
-       {:mariaex, "~> 0.9.1", [hex: :mariaex, repo: "hexpm", optional: true]},
-       {:myxql, "~> 0.2.0", [hex: :myxql, repo: "hexpm", optional: true]},
-       {:postgrex, "~> 0.14.0", [hex: :postgrex, repo: "hexpm", optional: true]},
-       {:telemetry, "~> 0.4.0", [hex: :telemetry, repo: "hexpm", optional: false]}
-     ], "hexpm"},
-  elixir_uuid:
-    {:hex, :elixir_uuid, "1.2.0",
-     "ff26e938f95830b1db152cb6e594d711c10c02c6391236900ddd070a6b01271d", [:mix], [], "hexpm"},
-  eventstore:
-    {:hex, :eventstore, "0.16.2",
-     "85752f535973bd4ec7bd1f6f0038a601b9ff1a1d8f868179ccf247a5166a2c15", [:mix],
-     [
-       {:elixir_uuid, "~> 1.2", [hex: :elixir_uuid, repo: "hexpm", optional: false]},
-       {:fsm, "~> 0.3", [hex: :fsm, repo: "hexpm", optional: false]},
-       {:gen_stage, "~> 0.14", [hex: :gen_stage, repo: "hexpm", optional: false]},
-       {:jason, "~> 1.1", [hex: :jason, repo: "hexpm", optional: true]},
-       {:poolboy, "~> 1.5", [hex: :poolboy, repo: "hexpm", optional: true]},
-       {:postgrex, "~> 0.14", [hex: :postgrex, repo: "hexpm", optional: false]}
-     ], "hexpm"},
-  excoveralls:
-    {:hex, :excoveralls, "0.11.1",
-     "dd677fbdd49114fdbdbf445540ec735808250d56b011077798316505064edb2c", [:mix],
-     [
-       {:hackney, "~> 1.0", [hex: :hackney, repo: "hexpm", optional: false]},
-       {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}
-     ], "hexpm"},
-  fsm:
-    {:hex, :fsm, "0.3.1", "087aa9b02779a84320dc7a2d8464452b5308e29877921b2bde81cdba32a12390",
-     [:mix], [], "hexpm"},
-  gen_stage:
-    {:hex, :gen_stage, "0.14.1",
-     "9d46723fda072d4f4bb31a102560013f7960f5d80ea44dcb96fd6304ed61e7a4", [:mix], [], "hexpm"},
-  gettext:
-    {:hex, :gettext, "0.16.1", "e2130b25eebcbe02bb343b119a07ae2c7e28bd4b146c4a154da2ffb2b3507af2",
-     [:mix], [], "hexpm"},
-  hackney:
-    {:hex, :hackney, "1.15.1", "9f8f471c844b8ce395f7b6d8398139e26ddca9ebc171a8b91342ee15a19963f4",
-     [:rebar3],
-     [
-       {:certifi, "2.5.1", [hex: :certifi, repo: "hexpm", optional: false]},
-       {:idna, "6.0.0", [hex: :idna, repo: "hexpm", optional: false]},
-       {:metrics, "1.0.1", [hex: :metrics, repo: "hexpm", optional: false]},
-       {:mimerl, "~>1.1", [hex: :mimerl, repo: "hexpm", optional: false]},
-       {:ssl_verify_fun, "1.1.4", [hex: :ssl_verify_fun, repo: "hexpm", optional: false]}
-     ], "hexpm"},
-  idna:
-    {:hex, :idna, "6.0.0", "689c46cbcdf3524c44d5f3dde8001f364cd7608a99556d8fbd8239a5798d4c10",
-     [:rebar3],
-     [
-       {:unicode_util_compat, "0.4.1",
-        [hex: :unicode_util_compat, repo: "hexpm", optional: false]}
-     ], "hexpm"},
-  jason:
-    {:hex, :jason, "1.1.2", "b03dedea67a99223a2eaf9f1264ce37154564de899fd3d8b9a21b1a6fd64afe7",
-     [:mix], [{:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm"},
-  metrics:
-    {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486",
-     [:rebar3], [], "hexpm"},
-  mimerl:
-    {:hex, :mimerl, "1.2.0", "67e2d3f571088d5cfd3e550c383094b47159f3eee8ffa08e64106cdf5e981be3",
-     [:rebar3], [], "hexpm"},
-  parse_trans:
-    {:hex, :parse_trans, "3.3.0",
-     "09765507a3c7590a784615cfd421d101aec25098d50b89d7aa1d66646bc571c1", [:rebar3], [], "hexpm"},
-  poolboy:
-    {:hex, :poolboy, "1.5.2", "392b007a1693a64540cead79830443abf5762f5d30cf50bc95cb2c1aaafa006b",
-     [:rebar3], [], "hexpm"},
-  postgrex:
-    {:hex, :postgrex, "0.14.3",
-     "5754dee2fdf6e9e508cbf49ab138df964278700b764177e8f3871e658b345a1e", [:mix],
-     [
-       {:connection, "~> 1.0", [hex: :connection, repo: "hexpm", optional: false]},
-       {:db_connection, "~> 2.0", [hex: :db_connection, repo: "hexpm", optional: false]},
-       {:decimal, "~> 1.5", [hex: :decimal, repo: "hexpm", optional: false]},
-       {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: true]}
-     ], "hexpm"},
-  ssl_verify_fun:
-    {:hex, :ssl_verify_fun, "1.1.4",
-     "f0eafff810d2041e93f915ef59899c923f4568f4585904d010387ed74988e77b", [:make, :mix, :rebar3],
-     [], "hexpm"},
-  telemetry:
-    {:hex, :telemetry, "0.4.0",
-     "8339bee3fa8b91cb84d14c2935f8ecf399ccd87301ad6da6b71c09553834b2ab", [:rebar3], [], "hexpm"},
-  timex:
-    {:hex, :timex, "3.5.0", "b0a23167da02d0fe4f1a4e104d1f929a00d348502b52432c05de875d0b9cffa5",
-     [:mix],
-     [
-       {:combine, "~> 0.10", [hex: :combine, repo: "hexpm", optional: false]},
-       {:gettext, "~> 0.10", [hex: :gettext, repo: "hexpm", optional: false]},
-       {:tzdata, "~> 0.1.8 or ~> 0.5", [hex: :tzdata, repo: "hexpm", optional: false]}
-     ], "hexpm"},
-  tzdata:
-    {:hex, :tzdata, "0.5.20", "304b9e98a02840fb32a43ec111ffbe517863c8566eb04a061f1c4dbb90b4d84c",
-     [:mix], [{:hackney, "~> 1.0", [hex: :hackney, repo: "hexpm", optional: false]}], "hexpm"},
-  unicode_util_compat:
-    {:hex, :unicode_util_compat, "0.4.1",
-     "d869e4c68901dd9531385bb0c8c40444ebf624e60b6962d95952775cac5e90cd", [:rebar3], [], "hexpm"}
+  "certifi": {:hex, :certifi, "2.5.1", "867ce347f7c7d78563450a18a6a28a8090331e77fa02380b4a21962a65d36ee5", [:rebar3], [{:parse_trans, "~>3.3", [hex: :parse_trans, repo: "hexpm", optional: false]}], "hexpm"},
+  "combine": {:hex, :combine, "0.10.0", "eff8224eeb56498a2af13011d142c5e7997a80c8f5b97c499f84c841032e429f", [:mix], [], "hexpm"},
+  "connection": {:hex, :connection, "1.0.4", "a1cae72211f0eef17705aaededacac3eb30e6625b04a6117c1b2db6ace7d5976", [:mix], [], "hexpm"},
+  "db_connection": {:hex, :db_connection, "2.2.0", "e923e88887cd60f9891fd324ac5e0290954511d090553c415fbf54be4c57ee63", [:mix], [{:connection, "~> 1.0.2", [hex: :connection, repo: "hexpm", optional: false]}], "hexpm"},
+  "decimal": {:hex, :decimal, "1.8.1", "a4ef3f5f3428bdbc0d35374029ffcf4ede8533536fa79896dd450168d9acdf3c", [:mix], [], "hexpm"},
+  "ecto": {:hex, :ecto, "3.3.0", "9193e261d25c1814324d0b3304fccbadab840b286d270c3b75dfd28c30a3ae15", [:mix], [{:decimal, "~> 1.6", [hex: :decimal, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: true]}], "hexpm"},
+  "ecto_sql": {:hex, :ecto_sql, "3.3.2", "92804e0de69bb63e621273c3492252cb08a29475c05d40eeb6f41ad2d483cfd3", [:mix], [{:db_connection, "~> 2.2", [hex: :db_connection, repo: "hexpm", optional: false]}, {:ecto, "~> 3.3", [hex: :ecto, repo: "hexpm", optional: false]}, {:myxql, "~> 0.3.0", [hex: :myxql, repo: "hexpm", optional: true]}, {:postgrex, "~> 0.15.0", [hex: :postgrex, repo: "hexpm", optional: true]}, {:telemetry, "~> 0.4.0", [hex: :telemetry, repo: "hexpm", optional: false]}], "hexpm"},
+  "elixir_uuid": {:hex, :elixir_uuid, "1.2.1", "dce506597acb7e6b0daeaff52ff6a9043f5919a4c3315abb4143f0b00378c097", [:mix], [], "hexpm"},
+  "eventstore": {:hex, :eventstore, "1.0.0", "a001fcfd4e124cd32c36eb1712b9621b84c3afe67ff2cd639a49507888adbcf7", [:mix], [{:elixir_uuid, "~> 1.2", [hex: :elixir_uuid, repo: "hexpm", optional: false]}, {:fsm, "~> 0.3", [hex: :fsm, repo: "hexpm", optional: false]}, {:gen_stage, "~> 0.14", [hex: :gen_stage, repo: "hexpm", optional: false]}, {:jason, "~> 1.1", [hex: :jason, repo: "hexpm", optional: true]}, {:poolboy, "~> 1.5", [hex: :poolboy, repo: "hexpm", optional: true]}, {:postgrex, "~> 0.15", [hex: :postgrex, repo: "hexpm", optional: false]}], "hexpm"},
+  "excoveralls": {:hex, :excoveralls, "0.11.1", "dd677fbdd49114fdbdbf445540ec735808250d56b011077798316505064edb2c", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: false]}], "hexpm"},
+  "fsm": {:hex, :fsm, "0.3.1", "087aa9b02779a84320dc7a2d8464452b5308e29877921b2bde81cdba32a12390", [:mix], [], "hexpm"},
+  "gen_stage": {:hex, :gen_stage, "0.14.3", "d0c66f1c87faa301c1a85a809a3ee9097a4264b2edf7644bf5c123237ef732bf", [:mix], [], "hexpm"},
+  "gettext": {:hex, :gettext, "0.16.1", "e2130b25eebcbe02bb343b119a07ae2c7e28bd4b146c4a154da2ffb2b3507af2", [:mix], [], "hexpm"},
+  "hackney": {:hex, :hackney, "1.15.1", "9f8f471c844b8ce395f7b6d8398139e26ddca9ebc171a8b91342ee15a19963f4", [:rebar3], [{:certifi, "2.5.1", [hex: :certifi, repo: "hexpm", optional: false]}, {:idna, "6.0.0", [hex: :idna, repo: "hexpm", optional: false]}, {:metrics, "1.0.1", [hex: :metrics, repo: "hexpm", optional: false]}, {:mimerl, "~>1.1", [hex: :mimerl, repo: "hexpm", optional: false]}, {:ssl_verify_fun, "1.1.4", [hex: :ssl_verify_fun, repo: "hexpm", optional: false]}], "hexpm"},
+  "idna": {:hex, :idna, "6.0.0", "689c46cbcdf3524c44d5f3dde8001f364cd7608a99556d8fbd8239a5798d4c10", [:rebar3], [{:unicode_util_compat, "0.4.1", [hex: :unicode_util_compat, repo: "hexpm", optional: false]}], "hexpm"},
+  "jason": {:hex, :jason, "1.1.2", "b03dedea67a99223a2eaf9f1264ce37154564de899fd3d8b9a21b1a6fd64afe7", [:mix], [{:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: true]}], "hexpm"},
+  "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], [], "hexpm"},
+  "mimerl": {:hex, :mimerl, "1.2.0", "67e2d3f571088d5cfd3e550c383094b47159f3eee8ffa08e64106cdf5e981be3", [:rebar3], [], "hexpm"},
+  "parse_trans": {:hex, :parse_trans, "3.3.0", "09765507a3c7590a784615cfd421d101aec25098d50b89d7aa1d66646bc571c1", [:rebar3], [], "hexpm"},
+  "poolboy": {:hex, :poolboy, "1.5.2", "392b007a1693a64540cead79830443abf5762f5d30cf50bc95cb2c1aaafa006b", [:rebar3], [], "hexpm"},
+  "postgrex": {:hex, :postgrex, "0.15.3", "5806baa8a19a68c4d07c7a624ccdb9b57e89cbc573f1b98099e3741214746ae4", [:mix], [{:connection, "~> 1.0", [hex: :connection, repo: "hexpm", optional: false]}, {:db_connection, "~> 2.1", [hex: :db_connection, repo: "hexpm", optional: false]}, {:decimal, "~> 1.5", [hex: :decimal, repo: "hexpm", optional: false]}, {:jason, "~> 1.0", [hex: :jason, repo: "hexpm", optional: true]}], "hexpm"},
+  "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.4", "f0eafff810d2041e93f915ef59899c923f4568f4585904d010387ed74988e77b", [:make, :mix, :rebar3], [], "hexpm"},
+  "telemetry": {:hex, :telemetry, "0.4.1", "ae2718484892448a24470e6aa341bc847c3277bfb8d4e9289f7474d752c09c7f", [:rebar3], [], "hexpm"},
+  "timex": {:hex, :timex, "3.5.0", "b0a23167da02d0fe4f1a4e104d1f929a00d348502b52432c05de875d0b9cffa5", [:mix], [{:combine, "~> 0.10", [hex: :combine, repo: "hexpm", optional: false]}, {:gettext, "~> 0.10", [hex: :gettext, repo: "hexpm", optional: false]}, {:tzdata, "~> 0.1.8 or ~> 0.5", [hex: :tzdata, repo: "hexpm", optional: false]}], "hexpm"},
+  "tzdata": {:hex, :tzdata, "0.5.20", "304b9e98a02840fb32a43ec111ffbe517863c8566eb04a061f1c4dbb90b4d84c", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, repo: "hexpm", optional: false]}], "hexpm"},
+  "unicode_util_compat": {:hex, :unicode_util_compat, "0.4.1", "d869e4c68901dd9531385bb0c8c40444ebf624e60b6962d95952775cac5e90cd", [:rebar3], [], "hexpm"},
 }
