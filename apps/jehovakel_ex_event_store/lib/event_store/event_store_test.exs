@@ -32,4 +32,24 @@ defmodule Shared.EventTest do
 
     assert [{@event, @metadata}] = JehovakelEx.EventStore.all_events()
   end
+
+  test "append event to stream with stream_uuid" do
+    assert {:ok, [%{data: @event}]} =
+             JehovakelEx.EventStore.append_event("stream_uuid", @event, @metadata)
+
+    assert [%EventStore.RecordedEvent{data: @event, metadata: @metadata}] =
+             JehovakelEx.EventStore.all_events(nil, unwrap: false)
+
+    assert [{@event, @metadata}] = JehovakelEx.EventStore.all_events()
+    assert [{@event, @metadata}] = JehovakelEx.EventStore.all_events("stream_uuid")
+  end
+
+  test "append list of events" do
+    assert {:ok, [%{data: @event}]} = JehovakelEx.EventStore.append_event([@event], @metadata)
+
+    assert [%EventStore.RecordedEvent{data: @event, metadata: @metadata}] =
+             JehovakelEx.EventStore.all_events(nil, unwrap: false)
+
+    assert [{@event, @metadata}] = JehovakelEx.EventStore.all_events()
+  end
 end

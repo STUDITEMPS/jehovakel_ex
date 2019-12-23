@@ -5,27 +5,38 @@ defmodule Shared.EventStore do
       alias Shared.EventStoreEvent
       require Logger
 
-      def append_event(domain_event, metadata) do
-        stream_id = Shared.AppendableEvent.stream_id(domain_event)
-        append_event(stream_id, domain_event, metadata)
+      def append_event(domain_events, metadata) do
+        domain_events = List.wrap(domain_events)
+
+        appended_events =
+          Enum.flat_map(domain_events, fn domain_event ->
+            stream_id = Shared.AppendableEvent.stream_id(domain_event)
+            {:ok, appended_event} = append_event(stream_id, domain_event, metadata)
+            appended_event
+          end)
+
+        {:ok, appended_events}
       end
 
       def append_event(
             stream_uuid,
-            domain_event,
+            domain_events,
             metadata
           ) do
-        persisted_events = domain_event |> EventStoreEvent.wrap_for_persistence(metadata)
+        persisted_events = domain_events |> EventStoreEvent.wrap_for_persistence(metadata)
 
         case @event_store_backend.append_to_stream(stream_uuid, :any_version, persisted_events) do
           :ok ->
-            log(stream_uuid, domain_event, metadata)
+            log(stream_uuid, domain_events, metadata)
             {:ok, persisted_events}
 
           error ->
             error
         end
       end
+
+      def append_events(stream_uuid, domain_events, metadata),
+        do: append_event(stream_uuid, domain_events, metadata)
 
       def all_events(stream_id \\ nil, opts \\ []) do
         {:ok, events} =
@@ -48,14 +59,17 @@ defmodule Shared.EventStore do
         end
       end
 
-      defp log(stream_uuid, event, metadata) do
-        # Checke hier schon, ob Shared.LoggableEvent Protocol implementiert ist.
-        logged_event = Shared.LoggableEvent.to_log(event)
+      defp log(stream_uuid, events, metadata) do
+        events = List.wrap(events)
 
-        Logger.info(fn ->
-          "Appended event stream_uuid=#{stream_uuid} event=[#{logged_event}] metadata=#{
-            metadata |> inspect
-          }"
+        Enum.each(events, fn event ->
+          logged_event = Shared.LoggableEvent.to_log(event)
+
+          Logger.info(fn ->
+            "Appended event stream_uuid=#{stream_uuid} event=[#{logged_event}] metadata=#{
+              metadata |> inspect()
+            }"
+          end)
         end)
       end
     end
