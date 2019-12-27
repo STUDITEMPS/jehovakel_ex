@@ -12,7 +12,8 @@ defmodule Shared.Ecto.MixProject do
       start_permanent: Mix.env() == :prod,
       test_paths: ["test", "lib"],
       test_coverage: [tool: ExCoveralls],
-      deps: deps()
+      deps: deps(),
+      aliases: aliases()
     ]
   end
 
@@ -36,4 +37,10 @@ defmodule Shared.Ecto.MixProject do
 
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
+  defp aliases do
+    [
+      test: ["ecto.create --quiet", "ecto.migrate", "test"]
+    ]
+  end
 end

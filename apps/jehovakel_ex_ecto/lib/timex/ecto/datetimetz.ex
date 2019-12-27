@@ -12,6 +12,8 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
       defdelegate down(), to: Timex.Ecto.DateTimeWithTimezone.Migration
     end
   ```
+
+  WARNING: In Embeds, the timezone does not get preserved.
   """
   use Timex
 
@@ -58,6 +60,16 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
     in_utc = Timex.set(datetime, timezone: "Etc/UTC")
     {:ok, {in_utc, tzname}}
   end
+
+  @doc """
+  Checks if two terms are semantically equal.
+  """
+  def equal(term1, term2), do: term1 == term2
+
+  @doc """
+  Dictates how the type should be treated inside embeds.
+  """
+  def embed_as(_), do: :self
 
   defmodule Migration do
     use Ecto.Migration
