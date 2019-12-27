@@ -64,7 +64,7 @@ defmodule Timex.Ecto.DateTimeWithTimezone do
   @doc """
   Checks if two terms are semantically equal.
   """
-  def equal(term1, term2), do: term1 == term2
+  def equal?(term1, term2), do: term1 == term2
 
   @doc """
   Dictates how the type should be treated inside embeds.
