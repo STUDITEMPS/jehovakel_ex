@@ -79,7 +79,7 @@ defmodule Shared.EventStoreListenerTest do
         {:ok, _events} =
           JehovakelEx.EventStore.append_event(@event, %{test_pid: self(), raise_until: 0})
 
-        assert_receive :event_handled_successfully
+        assert_receive :event_handled_successfully, 200
         assert listener_pid == Process.whereis(ExampleConsumer)
       end)
     end
@@ -112,7 +112,7 @@ defmodule Shared.EventStoreListenerTest do
           JehovakelEx.EventStore.append_event(@event, %{test_pid: self(), raise_until: 4})
 
         assert_receive :exception_during_event_handling
-        assert_receive :event_handled_successfully, 200
+        assert_receive :event_handled_successfully, 300
       end)
 
     assert logs =~ "Stacktrace"
