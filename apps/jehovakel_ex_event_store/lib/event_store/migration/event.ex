@@ -10,7 +10,6 @@ if Code.ensure_loaded?(Ecto) && Code.ensure_loaded?(Shared.Ecto.Term) do
     require Logger
 
     @primary_key {:event_id, :binary_id, autogenerate: false}
-    @primary_key {:event_id, :binary_id, autogenerate: false}
     schema "events" do
       field(:event_type, :string)
       field(:data, Shared.Ecto.Term)
