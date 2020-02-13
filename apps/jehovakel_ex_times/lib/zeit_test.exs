@@ -19,4 +19,10 @@ defmodule Shared.ZeitTest do
              |> entspricht_timestamp?("2018-10-03T10:20:42Z")
     end
   end
+
+  describe "jetzt/0" do
+    test "schneidet Millisekunden weg" do
+      assert %DateTime{microsecond: {0, 0}} = Zeit.jetzt()
+    end
+  end
 end

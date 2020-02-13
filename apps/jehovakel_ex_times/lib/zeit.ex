@@ -42,6 +42,10 @@ defmodule Shared.Zeit do
     date_time
   end
 
+  def jetzt do
+    Timex.local() |> DateTime.truncate(:second)
+  end
+
   defmodule Sigil do
     @doc """
     Wandelt ISO8601 Date Strings und Time Strings in DateTime mit deutscher Zeitzone
