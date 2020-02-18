@@ -43,6 +43,13 @@ if Code.ensure_loaded?(Ecto) && Code.ensure_loaded?(Shared.Ecto.Term) do
             %event_module{} = new_data
             event_type = Atom.to_string(event_module)
 
+            {:ok, migrated_at} = DateTime.now("Europe/Berlin")
+
+            new_metadata =
+              new_metadata
+              |> Enum.into(%{})
+              |> Map.merge(%{migrated_at: migrated_at, original_event: event.data})
+
             changeset =
               change(event, event_type: event_type, data: new_data, metadata: new_metadata)
 
