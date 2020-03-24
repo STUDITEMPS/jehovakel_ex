@@ -1,7 +1,6 @@
 defmodule Shared.EventStoreListenerTest do
-  use ExUnit.Case, async: false
+  use Support.EventStoreCase, async: false
   import ExUnit.CaptureLog
-  @moduletag :integration
 
   @event %Shared.EventTest.FakeEvent{}
 
@@ -40,23 +39,9 @@ defmodule Shared.EventStoreListenerTest do
     end
   end
 
-  setup _tags do
-    # reset eventstore
-    config = EventStore.Config.parsed(JehovakelEx.EventStore, :jehovakel_ex_event_store)
-    postgrex_config = EventStore.Config.default_postgrex_opts(config)
-    {:ok, eventstore_connection} = Postgrex.start_link(postgrex_config)
-    EventStore.Storage.Initializer.reset!(eventstore_connection)
-    {:ok, _} = Application.ensure_all_started(:eventstore)
-
-    start_supervised!(JehovakelEx.EventStore)
+  setup do
     start_supervised!(ExampleConsumer)
-    Counter.start_link(0)
-
-    on_exit(fn ->
-      # stop eventstore application
-      Application.stop(:eventstore)
-      Process.exit(eventstore_connection, :shutdown)
-    end)
+    {:ok, _pid} = Counter.start_link(0)
 
     :ok
   end
