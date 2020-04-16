@@ -21,42 +21,46 @@ if Code.ensure_loaded?(Ecto) && Code.ensure_loaded?(Shared.Ecto.Term) do
         when is_atom(event_type_to_migrate) and is_function(migration, 2) do
       event_type = Atom.to_string(event_type_to_migrate)
 
-      events =
+      query =
         from(
           e in Shared.EventStore.Migration.Event,
           where: e.event_type == ^event_type
         )
-        |> repository.all()
 
-      if Enum.any?(events) do
+      anzahl_events = repository.aggregate(query, :count)
+
+      events = repository.stream(query)
+
+      if anzahl_events > 0 do
         Logger.info(
           "Migrating " <>
-            to_string(Enum.count(events)) <>
-            " Events vom Typ " <> to_string(event_type_to_migrate)
+            to_string(anzahl_events) <> " Events vom Typ " <> to_string(event_type_to_migrate)
         )
 
         Ecto.Adapters.SQL.query!(repository, "DROP RULE no_update_events ON events")
 
-        multi =
-          Enum.reduce(events, Ecto.Multi.new(), fn event, multi ->
-            {new_data, new_metadata} = migration.(event.data, event.metadata)
-            %event_module{} = new_data
-            event_type = Atom.to_string(event_module)
+        repository.transaction(
+          fn ->
+            Enum.each(events, fn event ->
+              {new_data, new_metadata} = migration.(event.data, event.metadata)
+              %event_module{} = new_data
+              event_type = Atom.to_string(event_module)
 
-            {:ok, migrated_at} = DateTime.now("Europe/Berlin")
+              {:ok, migrated_at} = DateTime.now("Europe/Berlin")
 
-            new_metadata =
-              new_metadata
-              |> Enum.into(%{})
-              |> Map.merge(%{migrated_at: migrated_at, original_event: event.data})
+              new_metadata =
+                new_metadata
+                |> Enum.into(%{})
+                |> Map.merge(%{migrated_at: migrated_at, original_event: event.data})
 
-            changeset =
-              change(event, event_type: event_type, data: new_data, metadata: new_metadata)
+              changeset =
+                change(event, event_type: event_type, data: new_data, metadata: new_metadata)
 
-            Ecto.Multi.update(multi, event.event_id, changeset)
-          end)
-
-        repository.transaction(multi, timeout: 600_000_000)
+              repository.update!(changeset)
+            end)
+          end,
+          timeout: 600_000_000
+        )
       end
     after
       Ecto.Adapters.SQL.query!(
