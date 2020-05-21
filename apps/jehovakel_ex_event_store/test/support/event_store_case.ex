@@ -10,6 +10,20 @@ defmodule Support.EventStoreCase do
       import JehovakelEx.EventStore,
         only: [append_event: 2, append_event: 3, all_events: 2, all_events: 1, all_events: 0],
         warn: false
+
+      def wait_until(fun), do: wait_until(500, fun)
+
+      def wait_until(0, fun), do: fun.()
+
+      def wait_until(timeout, fun) do
+        try do
+          fun.()
+        rescue
+          ExUnit.AssertionError ->
+            :timer.sleep(100)
+            wait_until(max(0, timeout - 100), fun)
+        end
+      end
     end
   end
 
@@ -29,6 +43,6 @@ defmodule Support.EventStoreCase do
       Process.exit(eventstore_connection, :shutdown)
     end)
 
-    :ok
+    {:ok, %{postgrex_connection: eventstore_connection}}
   end
 end
