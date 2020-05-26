@@ -11,7 +11,7 @@ defimpl Shared.AppendableEvent, for: Any do
     quote do
       defimpl Shared.AppendableEvent, for: unquote(module) do
         def stream_id(event) do
-          stream_id_field = unquote(options) |> List.wrap() |> List.first()
+          stream_id_field = Keyword.fetch!(unquote(options), :stream_id)
           stream_id = Map.fetch!(event, stream_id_field)
 
           unless is_binary(stream_id) do
@@ -22,7 +22,7 @@ defimpl Shared.AppendableEvent, for: Any do
         end
 
         def streams_to_link(event) do
-          [_stream_id | fields_to_link] = unquote(options) |> List.wrap()
+          fields_to_link = Keyword.get(unquote(options), :streams_to_link, []) |> List.wrap()
 
           invalid_links =
             Enum.reduce(fields_to_link, %{}, fn field, errors ->

@@ -2,7 +2,7 @@ defmodule Shared.LinkAppendableEventsTest do
   use Support.EventStoreCase, async: false
 
   defmodule TestEvent do
-    @derive {Shared.AppendableEvent, [:a, :b]}
+    @derive {Shared.AppendableEvent, stream_id: :a, streams_to_link: :b}
     defstruct [:a, :b, :c, :d]
   end
 
