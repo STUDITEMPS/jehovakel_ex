@@ -21,7 +21,7 @@ defmodule Shared.LinkAppendableEvents do
     event_store = Keyword.fetch!(opts, :event_store)
 
     {subscription_name, opts} = Keyword.get_and_update(opts, :subscription_name, fn _ -> :pop end)
-    subscription_name = subscription_name || "__link_appendable_events__"
+    subscription_name = subscription_name || "__jehovakel_ex_event_store_link_appendable_events__"
     # Subscribe to events from all streams
     {:ok, subscription} = event_store.subscribe_to_all_streams(subscription_name, self(), opts)
 
