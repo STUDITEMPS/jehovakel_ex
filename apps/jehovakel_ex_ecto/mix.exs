@@ -4,7 +4,7 @@ defmodule Shared.Ecto.MixProject do
   def project do
     [
       app: :jehovakel_ex_ecto,
-      version: "0.1.1",
+      version: "1.0.0",
       build_path: "_build",
       deps_path: "deps",
       elixir: "~> 1.7",

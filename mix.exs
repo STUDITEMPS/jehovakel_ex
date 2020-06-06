@@ -5,7 +5,8 @@ defmodule JehovakelEx.MixProject do
     [
       apps_path: "apps",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      consolidate_protocols: Mix.env() != :test
     ]
   end
 
