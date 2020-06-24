@@ -103,6 +103,7 @@ defmodule Shared.Zeitperiode do
   def parse(interval) when is_binary(interval) do
     [start, ende] =
       interval
+      |> String.replace("--", "/")
       |> String.split("/")
 
     [start: start |> Shared.Zeit.parse(), ende: ende |> Shared.Zeit.parse()]

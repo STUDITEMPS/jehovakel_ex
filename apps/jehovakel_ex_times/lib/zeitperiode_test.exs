@@ -290,6 +290,8 @@ defmodule Shared.ZeitperiodeTest do
     test "parse ISO8601 Zeitintervall" do
       assert Periode.parse("2019-04-16T23:30:00+02:00/2019-04-16T23:45:00+02:00")
              |> entspricht_intervall?("2019-04-16T23:30:00+02:00/2019-04-16T23:45:00+02:00")
+      assert Periode.parse("2019-04-16T23:30:00+02:00--2019-04-16T23:45:00+02:00")
+             |> entspricht_intervall?("2019-04-16T23:30:00+02:00/2019-04-16T23:45:00+02:00")
     end
   end
 
