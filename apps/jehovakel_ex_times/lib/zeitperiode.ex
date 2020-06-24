@@ -85,6 +85,18 @@ defmodule Shared.Zeitperiode do
 
   def to_string(periode), do: Timex.Interval.format!(periode, "%Y-%m-%d %H:%M", :strftime)
 
+  def to_iso8601(%Timex.Interval{from: %NaiveDateTime{} = von, until: %NaiveDateTime{} = bis}) do
+    [von, bis] |> Enum.map(&NaiveDateTime.to_iso8601/1) |> Enum.join("/")
+  end
+
+  def to_iso8601(start: %DateTime{} = start, ende: %DateTime{} = ende) do
+    [start, ende] |> Enum.map(&DateTime.to_iso8601/1) |> Enum.join("/")
+  end
+
+  def to_iso8601(start: %NaiveDateTime{} = start, ende: %NaiveDateTime{} = ende) do
+    [start, ende] |> Enum.map(&NaiveDateTime.to_iso8601/1) |> Enum.join("/")
+  end
+
   defp to_interval(von, bis) do
     Timex.Interval.new(
       from: von,

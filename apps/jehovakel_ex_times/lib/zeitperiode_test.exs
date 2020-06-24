@@ -295,6 +295,32 @@ defmodule Shared.ZeitperiodeTest do
     end
   end
 
+  describe "to_iso8601/1" do
+    test "formatiere Periode als naives ISO8601 Intervall" do
+      assert periode = Periode.new(~N[2020-03-16 18:23:00], ~N[2020-04-02 08:38:11])
+      assert "2020-03-16T18:23:00/2020-04-02T08:38:11" == Periode.to_iso8601(periode)
+    end
+
+    test "formatiere Intervall als ISO8601 Intervall" do
+      intervall_string = "2020-03-16T18:23:00+01:00/2020-04-02T08:38:11+02:00"
+      assert intervall = Periode.parse(intervall_string)
+      assert intervall_string == Periode.to_iso8601(intervall)
+    end
+
+    test "formatiere naives Intervall als ISO8601 Intervall" do
+      intervall_string = "2020-03-16T18:23:00/2020-04-02T08:38:11"
+      assert intervall = Periode.parse(intervall_string)
+      assert intervall_string == Periode.to_iso8601(intervall)
+    end
+
+    test "Perioden und Intervalle sind unterschiedlich" do
+      intervall_string = "2020-03-16T18:23:00+01:00/2020-04-02T08:38:11+02:00"
+      assert intervall = Periode.parse(intervall_string)
+      assert periode = Periode.from_interval(intervall_string)
+      refute Periode.to_iso8601(intervall) == Periode.to_iso8601(periode)
+    end
+  end
+
   describe "teil_von?/2" do
     test "erkennt, ob ein Periode komplett in einem anderen Periode liegt" do
       periode = Periode.new(~D[2018-03-20], ~T[23:00:00], ~T[00:00:00])
