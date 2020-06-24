@@ -18,13 +18,13 @@ defmodule Shared.Zeit do
 
   def mit_deutscher_zeitzone(%NaiveDateTime{} = datetime) do
     datetime
-    |> DateTime.from_naive!("Etc/UTC")
-    |> mit_deutscher_zeitzone()
+    |> Timex.to_datetime("Europe/Berlin")
   end
 
   def mit_deutscher_zeitzone(%DateTime{} = datetime) do
     datetime
-    |> Timex.set(timezone: "Europe/Berlin")
+    |> DateTime.to_naive()
+    |> mit_deutscher_zeitzone()
   end
 
   def mit_deutscher_zeitzone(%Date{} = datum, %Time{} = start, %Time{} = ende) do
