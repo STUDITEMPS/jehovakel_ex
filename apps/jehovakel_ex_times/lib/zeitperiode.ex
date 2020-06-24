@@ -49,7 +49,7 @@ defmodule Shared.Zeitperiode do
   def new(%NaiveDateTime{} = von, %NaiveDateTime{} = bis), do: to_interval(von, bis)
 
   def from_interval(interval) when is_binary(interval) do
-    [start: start, ende: ende] = parse_interval(interval)
+    [start: start, ende: ende] = parse(interval)
     new(start, ende)
   end
 
