@@ -1,7 +1,7 @@
 defmodule Shared.Zeit do
   alias Shared.Zeitperiode
 
-  @spec mit_deutscher_zeitzone(date :: Date.t, time :: Time.t) :: DateTime.t
+  @spec mit_deutscher_zeitzone(datum :: Date.t, zeit :: Time.t) :: DateTime.t
   @doc """
   Wandelt ein Datum und eine Zeit in ein DateTime Struct mit deutscher Zeitzone
   um. Es wird also angenommen, dass die übergebene Zeit in Deutschland statt
@@ -53,7 +53,7 @@ defmodule Shared.Zeit do
   end
 
   defmodule Sigil do
-    @spec sigil_G(binary, _ :: charlist()) :: DateTime.t
+    @spec sigil_G(term :: binary(), _modifiers :: charlist()) :: DateTime.t
     @doc """
     Wandelt ISO8601 Date Strings und Time Strings in DateTime mit deutscher Zeitzone
 

@@ -117,7 +117,7 @@ defmodule Shared.Zeitperiode do
     parse(interval)
   end
 
-  @spec parse(binary) :: interval()
+  @spec parse(binary()) :: interval()
   def parse(interval) when is_binary(interval) do
     [start, ende] =
       interval
