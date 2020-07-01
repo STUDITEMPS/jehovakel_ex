@@ -3,8 +3,13 @@ defmodule Shared.Zeitperiode do
   Repräsentiert eine Arbeitszeit-Periode oder Schicht
   """
   @type t :: Timex.Interval.t()
+  @type interval :: [
+          start: DateTime.t() | NaiveDateTime.t(),
+          ende: DateTime.t() | NaiveDateTime.t()
+        ]
   @default_base_timezone_name "Europe/Berlin"
 
+  @spec new(kalendertag :: Date.t(), von :: Time.t(), bis :: Time.t()) :: t
   def new(%Date{} = kalendertag, %Time{} = von, %Time{} = bis) when von < bis do
     von_als_datetime = to_datetime(kalendertag, von)
     bis_als_datetime = to_datetime(kalendertag, bis)
@@ -22,6 +27,7 @@ defmodule Shared.Zeitperiode do
   end
 
   # Basiszeitzone ist die Zeitzone, in der die Zeit erfasst wurde, aktuell immer Dtl.
+  @spec new(von :: DateTime.t(), bis :: DateTime.t(), base_timezone_name :: String.t()) :: t
   def new(%DateTime{} = von, %DateTime{} = bis, base_timezone_name) do
     von = Shared.Zeitperiode.Timezone.convert(von, base_timezone_name)
 
@@ -41,24 +47,31 @@ defmodule Shared.Zeitperiode do
     to_interval(von_naive, bis_naive)
   end
 
+  @spec new(von :: DateTime.t(), bis :: DateTime.t()) :: t
   def new(%DateTime{} = von, %DateTime{} = bis) do
     # default value using `\\` produces the warning `definitions with multiple clauses and default values require a header.`
     new(von, bis, @default_base_timezone_name)
   end
 
+  @spec new(von :: NaiveDateTime.t(), bis :: NaiveDateTime.t()) :: t
   def new(%NaiveDateTime{} = von, %NaiveDateTime{} = bis), do: to_interval(von, bis)
 
+  @spec from_interval(interval :: String.t()) :: t
   def from_interval(interval) when is_binary(interval) do
     [start: start, ende: ende] = parse_interval(interval)
     new(start, ende)
   end
 
+  @spec von(t) :: Timex.Types.valid_datetime()
   def von(periode), do: periode.from
 
+  @spec bis(t) :: Timex.Types.valid_datetime()
   def bis(periode), do: periode.until
 
+  @spec von_datum(t) :: Date.t()
   def von_datum(periode), do: periode |> von() |> NaiveDateTime.to_date()
 
+  @spec bis_datum(t) :: Date.t()
   def bis_datum(%{until: %{hour: 0, minute: 0, second: 0}} = periode) do
     periode |> bis() |> NaiveDateTime.to_date() |> Timex.shift(days: -1)
   end
@@ -67,22 +80,29 @@ defmodule Shared.Zeitperiode do
     periode |> bis() |> NaiveDateTime.to_date()
   end
 
+  @spec dauer(t) :: number | {:error, any} | Timex.Duration.t()
   def dauer(periode), do: duration(periode, :duration)
+  @spec dauer_in_stunden(t) :: number | {:error, any} | Timex.Duration.t()
   def dauer_in_stunden(periode), do: duration(periode, :hours)
+  @spec dauer_in_minuten(t) :: number | {:error, any} | Timex.Duration.t()
   def dauer_in_minuten(periode), do: duration(periode, :minutes)
 
+  @spec ueberschneidung?(periode :: t, andere_periode :: t) :: boolean
   def ueberschneidung?(periode, andere_periode) do
     periode.from in andere_periode || andere_periode.from in periode
   end
 
+  @spec teil_von?(zu_testende_periode :: t, periode :: t) :: boolean
   def teil_von?(zu_testende_periode, periode) do
     zu_testende_periode.from in periode && zu_testende_periode.until in periode
   end
 
+  @spec beginnt_vor?(periode1 :: t, periode2 :: t) :: boolean
   def beginnt_vor?(periode1, periode2) do
     NaiveDateTime.compare(periode1.from, periode2.from) == :lt
   end
 
+  @spec to_string(t) :: String.t()
   def to_string(periode), do: Timex.Interval.format!(periode, "%Y-%m-%d %H:%M", :strftime)
 
   defp to_interval(von, bis) do
@@ -100,6 +120,7 @@ defmodule Shared.Zeitperiode do
     parse(interval)
   end
 
+  @spec parse(binary()) :: interval()
   def parse(interval) when is_binary(interval) do
     [start, ende] =
       interval
@@ -126,6 +147,8 @@ defmodule Shared.Zeitperiode do
   defp duration(periode, :minutes),
     do: periode |> duration(:duration) |> Timex.Duration.to_minutes() |> Float.round()
 
+  @spec dauer_der_ueberschneidung(periode1 :: Timex.Interval.t(), periode2 :: Timex.Interval.t()) ::
+          Timex.Duration.t()
   def dauer_der_ueberschneidung(periode1, periode2) do
     dauer1 = dauer(periode1)
 
@@ -140,6 +163,10 @@ defmodule Shared.Zeitperiode do
   end
 
   defmodule Timezone do
+    @spec convert(
+            DateTime.t(),
+            binary() | Timex.AmbiguousTimezoneInfo.t() | Timex.TimezoneInfo.t()
+          ) :: DateTime.t() | Timex.AmbiguousDateTime.t()
     def convert(datetime, timezone) do
       case Timex.Timezone.convert(datetime, timezone) do
         {:error, _} ->
