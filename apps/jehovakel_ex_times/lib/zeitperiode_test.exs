@@ -290,6 +290,34 @@ defmodule Shared.ZeitperiodeTest do
     test "parse ISO8601 Zeitintervall" do
       assert Periode.parse("2019-04-16T23:30:00+02:00/2019-04-16T23:45:00+02:00")
              |> entspricht_intervall?("2019-04-16T23:30:00+02:00/2019-04-16T23:45:00+02:00")
+      assert Periode.parse("2019-04-16T23:30:00+02:00--2019-04-16T23:45:00+02:00")
+             |> entspricht_intervall?("2019-04-16T23:30:00+02:00/2019-04-16T23:45:00+02:00")
+    end
+  end
+
+  describe "to_iso8601/1" do
+    test "formatiere Periode als naives ISO8601 Intervall" do
+      assert periode = Periode.new(~N[2020-03-16 18:23:00], ~N[2020-04-02 08:38:11])
+      assert "2020-03-16T18:23:00/2020-04-02T08:38:11" == Periode.to_iso8601(periode)
+    end
+
+    test "formatiere Intervall als ISO8601 Intervall" do
+      intervall_string = "2020-03-16T18:23:00+01:00/2020-04-02T08:38:11+02:00"
+      assert intervall = Periode.parse(intervall_string)
+      assert intervall_string == Periode.to_iso8601(intervall)
+    end
+
+    test "formatiere naives Intervall als ISO8601 Intervall" do
+      intervall_string = "2020-03-16T18:23:00/2020-04-02T08:38:11"
+      assert intervall = Periode.parse(intervall_string)
+      assert intervall_string == Periode.to_iso8601(intervall)
+    end
+
+    test "Perioden und Intervalle sind unterschiedlich" do
+      intervall_string = "2020-03-16T18:23:00+01:00/2020-04-02T08:38:11+02:00"
+      assert intervall = Periode.parse(intervall_string)
+      assert periode = Periode.from_interval(intervall_string)
+      refute Periode.to_iso8601(intervall) == Periode.to_iso8601(periode)
     end
   end
 

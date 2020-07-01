@@ -58,7 +58,7 @@ defmodule Shared.Zeitperiode do
 
   @spec from_interval(interval :: String.t()) :: t
   def from_interval(interval) when is_binary(interval) do
-    [start: start, ende: ende] = parse_interval(interval)
+    [start: start, ende: ende] = parse(interval)
     new(start, ende)
   end
 
@@ -105,6 +105,21 @@ defmodule Shared.Zeitperiode do
   @spec to_string(t) :: String.t()
   def to_string(periode), do: Timex.Interval.format!(periode, "%Y-%m-%d %H:%M", :strftime)
 
+  @spec to_iso8601(Timex.Interval.t()) :: binary()
+  def to_iso8601(%Timex.Interval{from: %NaiveDateTime{} = von, until: %NaiveDateTime{} = bis}) do
+    [von, bis] |> Enum.map(&NaiveDateTime.to_iso8601/1) |> Enum.join("/")
+  end
+
+  @spec to_iso8601(start: DateTime.t(), ende: DateTime.t()) :: binary()
+  def to_iso8601(start: %DateTime{} = start, ende: %DateTime{} = ende) do
+    [start, ende] |> Enum.map(&DateTime.to_iso8601/1) |> Enum.join("/")
+  end
+
+  @spec to_iso8601(start: DateTime.t(), ende: DateTime.t()) :: binary()
+  def to_iso8601(start: %NaiveDateTime{} = start, ende: %NaiveDateTime{} = ende) do
+    [start, ende] |> Enum.map(&NaiveDateTime.to_iso8601/1) |> Enum.join("/")
+  end
+
   defp to_interval(von, bis) do
     Timex.Interval.new(
       from: von,
@@ -124,6 +139,7 @@ defmodule Shared.Zeitperiode do
   def parse(interval) when is_binary(interval) do
     [start, ende] =
       interval
+      |> String.replace("--", "/")
       |> String.split("/")
 
     [start: start |> Shared.Zeit.parse(), ende: ende |> Shared.Zeit.parse()]
