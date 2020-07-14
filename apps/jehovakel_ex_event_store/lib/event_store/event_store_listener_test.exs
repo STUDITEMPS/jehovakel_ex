@@ -69,7 +69,7 @@ defmodule Shared.EventStoreListenerTest do
       end)
     end
 
-    test "stops after 3 attempts" do
+    test "stops EventStoreListener GenServer after 3 attempts" do
       logs =
         capture_log(fn ->
           listener_pid = Process.whereis(ExampleConsumer)
