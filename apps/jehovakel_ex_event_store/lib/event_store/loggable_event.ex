@@ -12,10 +12,10 @@ defimpl Shared.LoggableEvent, for: Any do
       event
       |> Map.from_struct()
       |> Enum.reduce("", fn {key, value}, event_as_string ->
-        event_as_string <> "#{key}=" <> inspect(value)
+        event_as_string <> " #{key}=" <> inspect(value)
       end)
 
-    ~s(#{event_type}: #{event_data})
+    ~s(#{event_type}:#{event_data})
   end
 
   def to_log(_event), do: raise(ArgumentError, "Implement the Shared.LoggableEvent Protocol")
