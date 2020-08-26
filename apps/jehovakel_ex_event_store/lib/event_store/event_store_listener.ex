@@ -213,6 +213,9 @@ defmodule Shared.EventStoreListener do
       :ok ->
         ack_event(event, state)
 
+      {:ok, _} ->
+        ack_event(event, state)
+
       {:error, reason} ->
         Logger.error(fn ->
           "#{name} failed to handle event #{inspect(event)} due to #{inspect(reason)}"
