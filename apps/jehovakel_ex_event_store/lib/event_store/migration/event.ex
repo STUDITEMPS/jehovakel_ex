@@ -18,7 +18,7 @@ if Code.ensure_loaded?(Ecto) && Code.ensure_loaded?(Shared.Ecto.Term) do
     end
 
     def migrate_event(event_type_to_migrate, migration, repository)
-        when is_atom(event_type_to_migrate) and is_function(migration, 2) do
+        when is_atom(event_type_to_migrate) and is_function(migration) do
       event_type = Atom.to_string(event_type_to_migrate)
 
       query =
@@ -42,7 +42,7 @@ if Code.ensure_loaded?(Ecto) && Code.ensure_loaded?(Shared.Ecto.Term) do
         repository.transaction(
           fn ->
             Enum.each(events, fn event ->
-              {new_data, new_metadata} = migration.(event.data, event.metadata)
+              {new_data, new_metadata} = run_migration(migration, event)
               %event_module{} = new_data
               event_type = Atom.to_string(event_module)
 
@@ -67,6 +67,18 @@ if Code.ensure_loaded?(Ecto) && Code.ensure_loaded?(Shared.Ecto.Term) do
         repository,
         "CREATE RULE no_update_events AS ON UPDATE TO events DO INSTEAD NOTHING"
       )
+    end
+
+    defp run_migration(migration, event) when is_function(migration, 2) do
+      migration.(event.data, event.metadata)
+    end
+
+    defp run_migration(migration, event) when is_function(migration, 3) do
+      migration.(event.data, event.metadata, %{
+        id: event.event_id,
+        type: event.event_type,
+        created_at: event.created_at
+      })
     end
   end
 end
