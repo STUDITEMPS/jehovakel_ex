@@ -30,3 +30,6 @@ config :jehovakel_ex_event_store, JehovakelEx.EventStore,
   # erhöht die DB-Pool checkout timeouts, so dass die Tests mehr Zeit haben und durchlaufen können
   queue_target: 1_000,
   queue_interval: 5_000
+
+# TODO: set level :error, which breaks lib/event_store/event_store_listener_test.exs
+config :logger, level: :error

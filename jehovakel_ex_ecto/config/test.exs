@@ -11,4 +11,4 @@ config :jehovakel_ex_ecto, JehovakelExEcto.Repo,
   hostname: System.get_env("PG_HOST") || "localhost",
   database: System.get_env("PG_NAME") || "jehovakel_ex_ecto_#{Mix.env()}"
 
-config :logger, level: :warn
+config :logger, level: :error

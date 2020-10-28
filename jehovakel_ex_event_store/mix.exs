@@ -12,10 +12,11 @@ defmodule Shared.MixProject do
       start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
       aliases: aliases(),
-      test_paths: ["test", "lib"],
+      test_paths: ["lib"],
       test_coverage: [tool: ExCoveralls],
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      consolidate_protocols: Mix.env() != :test
     ]
   end
 
@@ -43,7 +44,7 @@ defmodule Shared.MixProject do
       {:eventstore, "~> 1.0"},
       {:ecto, "~> 3.0", optional: true},
       {:ecto_sql, "~> 3.0", optional: true},
-      {:jehovakel_ex_ecto, ">= 0.0.0", optional: true, in_umbrella: true},
+      # {:jehovakel_ex_ecto, ">= 0.0.0", optional: true, in_umbrella: true},
       {:excoveralls, ">= 0.10.5", only: :test}
     ]
   end

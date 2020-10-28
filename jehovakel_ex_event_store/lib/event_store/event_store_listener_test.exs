@@ -40,25 +40,31 @@ defmodule Shared.EventStoreListenerTest do
   end
 
   setup do
+    old_log_level = Logger.level()
+    Logger.configure(level: :warn)
+
     start_supervised!(ExampleConsumer)
     {:ok, _pid} = Counter.start_link(0)
 
+    on_exit fn ->
+      Logger.configure(level: old_log_level)
+    end
     :ok
   end
 
   describe "Retry" do
     test "automatically on Exception during event handling without GenServer restart" do
-      capture_log(fn ->
+      capture_log([level: :warn], fn ->
         {:ok, _events} =
           JehovakelEx.EventStore.append_event(@event, %{test_pid: self(), raise_until: 0})
 
-        assert_receive :exception_during_event_handling
-        assert_receive :event_handled_successfully
+        assert_receive :exception_during_event_handling, 500
+        assert_receive :event_handled_successfully, 500
       end)
     end
 
     test "does not restart Listener process" do
-      capture_log(fn ->
+      capture_log([level: :warn], fn ->
         listener_pid = Process.whereis(ExampleConsumer)
 
         {:ok, _events} =
@@ -71,7 +77,7 @@ defmodule Shared.EventStoreListenerTest do
 
     test "stops EventStoreListener GenServer after 3 attempts" do
       logs =
-        capture_log(fn ->
+        capture_log([level: :warn], fn ->
           listener_pid = Process.whereis(ExampleConsumer)
 
           {:ok, _events} =
@@ -92,7 +98,7 @@ defmodule Shared.EventStoreListenerTest do
 
   test "Log Stacktrace on failing to handle exception during event handling" do
     logs =
-      capture_log(fn ->
+      capture_log([level: :warn], fn ->
         {:ok, _events} =
           JehovakelEx.EventStore.append_event(@event, %{test_pid: self(), raise_until: 4})
 
