@@ -5,15 +5,17 @@ defmodule Shared.Ecto.MixProject do
     [
       app: :jehovakel_ex_ecto,
       version: "1.0.0",
-      build_path: "_build",
-      deps_path: "deps",
       elixir: "~> 1.7",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       test_paths: ["lib"],
       test_coverage: [tool: ExCoveralls],
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      name: "Jehovakel EX Ecto",
+      source_url: "https://github.com/STUDITEMPS/jehovakel_ex/tree/master/jehovakel_ex_ecto",
+      description: description(),
+      package: package()
     ]
   end
 
@@ -41,6 +43,23 @@ defmodule Shared.Ecto.MixProject do
   defp aliases do
     [
       test: ["ecto.create --quiet", "ecto.migrate", "test"]
+    ]
+  end
+
+  defp description do
+    "TODO: describe this package"
+  end
+
+  defp package do
+    [
+      # This option is only needed when you don't want to use the OTP application name
+      name: "jehovakel_ex_ecto",
+      # These are the default files included in the package
+      licenses: ["MIT License"],
+      links: %{
+        "GitHub" => "https://github.com/STUDITEMPS/jehovakel_ex/tree/master/jehovakel_ex_ecto",
+        "Studitemps" => "https://tech.studitemps.de"
+      }
     ]
   end
 end
