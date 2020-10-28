@@ -4,19 +4,21 @@ defmodule Shared.MixProject do
   def project do
     [
       app: :jehovakel_ex_event_store,
-      version: "0.3.0",
-      elixirc_paths: elixirc_paths(Mix.env()),
-      build_path: "_build",
-      deps_path: "deps",
+      version: "1.0.0",
       elixir: "~> 1.7",
-      start_permanent: Mix.env() == :prod,
       elixirc_paths: elixirc_paths(Mix.env()),
+      start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       test_paths: ["lib"],
       test_coverage: [tool: ExCoveralls],
       deps: deps(),
       aliases: aliases(),
-      consolidate_protocols: Mix.env() != :test
+      consolidate_protocols: Mix.env() != :test,
+      name: "Jehovakel EX EventStore",
+      source_url:
+        "https://github.com/STUDITEMPS/jehovakel_ex/tree/master/jehovakel_ex_event_store",
+      description: description(),
+      package: package()
     ]
   end
 
@@ -46,6 +48,24 @@ defmodule Shared.MixProject do
       {:ecto_sql, "~> 3.0", optional: true},
       # {:jehovakel_ex_ecto, ">= 0.0.0", optional: true, in_umbrella: true},
       {:excoveralls, ">= 0.10.5", only: :test}
+    ]
+  end
+
+  defp description do
+    "TODO: describe this package"
+  end
+
+  defp package do
+    [
+      # This option is only needed when you don't want to use the OTP application name
+      name: "jehovakel_ex_event_store",
+      # These are the default files included in the package
+      licenses: ["MIT License"],
+      links: %{
+        "GitHub" =>
+          "https://github.com/STUDITEMPS/jehovakel_ex/tree/master/jehovakel_ex_event_store",
+        "Studitemps" => "https://tech.studitemps.de"
+      }
     ]
   end
 end
